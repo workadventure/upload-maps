@@ -14,7 +14,6 @@
     "@semantic-release/exec": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
     "@types/archiver": "^6.0.2",
-    "@types/node": "^18.15.11",
     "@types/prompt-sync": "^4.2.3",
     "@workadventure/iframe-api-typings": "^1.17.1",
     "archiver": "^7.0.1",
@@ -27,6 +26,7 @@
   "author": "Alexandre ARTUS",
   "license": "ISC",
   "devDependencies": {
+    "@types/node": "^20.12.7",
     "semantic-release": "^23.0.8"
   }
 }
