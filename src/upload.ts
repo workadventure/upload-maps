@@ -94,7 +94,6 @@ async function uploadMap(apiKey: string, urlMapStorage: string, directory: strin
         console.log("Creating .env file...")
     }
     createEnvFile(apiKey);
-
 }
 
 
