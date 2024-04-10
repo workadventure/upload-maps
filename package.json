@@ -11,8 +11,11 @@
         "url": "https://github.com/alexarts74/node-package-upload-wa-map.git"
     },
     "dependencies": {
+        "@semantic-release/commit-analyzer": "^12.0.0",
         "@semantic-release/exec": "^6.0.3",
         "@semantic-release/git": "^10.0.1",
+        "@semantic-release/github": "^10.0.3",
+        "@semantic-release/release-notes-generator": "^13.0.0",
         "@types/archiver": "^6.0.2",
         "@types/prompt-sync": "^4.2.3",
         "@workadventure/iframe-api-typings": "^1.17.1",
