@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/alexarts74/test-package.git"
+    "url": "https://github.com/alexarts74/node-package-upload-wa-map.git"
   },
   "dependencies": {
     "@semantic-release/exec": "^6.0.3",
