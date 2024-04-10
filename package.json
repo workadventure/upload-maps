@@ -4,45 +4,29 @@
     "description": "It is a package for uploading map in self hosted version.",
     "main": "upload.ts",
     "scripts": {
-      "upload": "tsx src/upload.ts"
+        "upload": "tsx src/upload.ts"
     },
     "repository": {
-      "type": "git",
-      "url": "https://github.com/alexarts74/node-package-upload-wa-map.git"
+        "type": "git",
+        "url": "https://github.com/alexarts74/node-package-upload-wa-map.git"
     },
     "dependencies": {
-      "@semantic-release/exec": "^6.0.3",
-      "@semantic-release/git": "^10.0.1",
-      "@types/archiver": "^6.0.2",
-      "@types/prompt-sync": "^4.2.3",
-      "@workadventure/iframe-api-typings": "^1.17.1",
-      "archiver": "^7.0.1",
-      "dotenv": "^16.4.5",
-      "prompt-sync": "^4.2.0",
-      "typescript": "^4.9.5",
-      "vite": "^4.5.2",
-      "wa-map-optimizer-vite": "^1.1.28"
+        "@semantic-release/exec": "^6.0.3",
+        "@semantic-release/git": "^10.0.1",
+        "@types/archiver": "^6.0.2",
+        "@types/prompt-sync": "^4.2.3",
+        "@workadventure/iframe-api-typings": "^1.17.1",
+        "archiver": "^7.0.1",
+        "dotenv": "^16.4.5",
+        "prompt-sync": "^4.2.0",
+        "typescript": "^4.9.5",
+        "vite": "^4.5.2",
+        "wa-map-optimizer-vite": "^1.1.28"
     },
     "author": "Alexandre ARTUS",
     "license": "ISC",
     "devDependencies": {
-      "@types/node": "^20.12.7",
-      "semantic-release": "^23.0.8"
-    },
-    "release": {
-      "verifyConditions": [
-        "@semantic-release/npm"
-      ],
-      "prepare": [
-        "@semantic-release/npm"
-      ],
-      "publish": [
-        {
-          "path": "@semantic-release/github",
-          "permissions": {
-            "contents": "write"
-          }
-        }
-      ]
+        "@types/node": "^20.12.7",
+        "semantic-release": "^23.0.8"
     }
-  }
+}
