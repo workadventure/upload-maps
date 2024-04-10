@@ -11,6 +11,8 @@
     "url": "https://github.com/alexarts74/test-package.git"
   },
   "dependencies": {
+    "@semantic-release/exec": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
     "@types/archiver": "^6.0.2",
     "@types/node": "^18.15.11",
     "@types/prompt-sync": "^4.2.3",
@@ -23,5 +25,8 @@
     "wa-map-optimizer-vite": "^1.1.28"
   },
   "author": "Alexandre ARTUS",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "semantic-release": "^23.0.8"
+  }
 }
