@@ -1,0 +1,27 @@
+{
+  "name": "package-upload-wa-map",
+  "version": "1.0.0",
+  "description": "It is a package for uploading map in self hosted version.",
+  "main": "upload.ts",
+  "scripts": {
+    "upload": "tsx src/upload.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alexarts74/test-package.git"
+  },
+  "dependencies": {
+    "@types/archiver": "^6.0.2",
+    "@types/node": "^18.15.11",
+    "@types/prompt-sync": "^4.2.3",
+    "@workadventure/iframe-api-typings": "^1.17.1",
+    "archiver": "^7.0.1",
+    "dotenv": "^16.4.5",
+    "prompt-sync": "^4.2.0",
+    "typescript": "^4.9.5",
+    "vite": "^4.5.2",
+    "wa-map-optimizer-vite": "^1.1.28"
+  },
+  "author": "Alexandre ARTUS",
+  "license": "ISC"
+}
