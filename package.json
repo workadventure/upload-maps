@@ -31,5 +31,8 @@
         "@types/node": "^20.12.7",
         "semantic-release": "^23.0.8",
         "typescript": "^5.4.5"
+    },
+    "bin": {
+        "nom-du-script": "upload.ts"
     }
 }
