@@ -4,8 +4,9 @@
       "lib": [
         "es2020",
         "es2021",
+        "DOM"
       ],
-      "target": "es2020",
+      "target": "es6",
       "removeComments": false,
       "sourceMap": true,
       "inlineSources": true,
@@ -13,7 +14,7 @@
       "resolveJsonModule": true,
       "downlevelIteration": true,
       "esModuleInterop": true,
-
+      "allowSyntheticDefaultImports": true,
       "strict": true,
       "strictFunctionTypes": false,
       "strictPropertyInitialization": false
@@ -22,6 +23,6 @@
       "src"
     ],
     "exclude": [
-      "**/node_modules",
+      "node_modules",
     ]
 }

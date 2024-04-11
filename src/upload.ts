@@ -2,11 +2,11 @@ exports.printMsg = function() {
     console.log("This is a message from the demo package");
 }
 
-import fs from 'fs';
-import archiver from 'archiver';
-import dotenv from 'dotenv';
+import * as fs from 'fs';
+import archiver = require('archiver');
+import  * as dotenv from 'dotenv';
 import axios from 'axios';
-import promptSync from 'prompt-sync';
+import promptSync = require('prompt-sync');
 
 const prompt = promptSync();
 dotenv.config();

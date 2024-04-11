@@ -4,7 +4,7 @@
     "description": "It is a package for uploading map in self hosted version.",
     "main": "upload.ts",
     "scripts": {
-        "upload": "tsx src/upload.ts"
+        "upload": "tsc src/upload.ts"
     },
     "repository": {
         "type": "git",
