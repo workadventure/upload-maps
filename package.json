@@ -25,14 +25,14 @@
         "vite": "^4.5.2",
         "wa-map-optimizer-vite": "^1.1.28"
     },
-    "author": "Alexandre ARTUS",
+    "author": "Alexandre ARTUS  <a.artus@workadventu.re>",
     "license": "ISC",
     "devDependencies": {
         "@types/node": "^20.12.7",
         "semantic-release": "^23.0.8",
         "typescript": "^5.4.5"
     },
-    "bin": {
-        "upload": "upload.ts"
+    "publishConfig": {
+        "access": "public"
     }
 }
