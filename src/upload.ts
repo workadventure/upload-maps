@@ -77,7 +77,6 @@ async function askQuestions() {
 
 // Fonction pour effectuer l'upload avec axios
 async function uploadMap(apiKey: string, urlMapStorage: string, directory: string,) {
-
     await axios.post(urlMapStorage,{
         apiKey: apiKey,
         file: fs.createReadStream('dist.zip'),
