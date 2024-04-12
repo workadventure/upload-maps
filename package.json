@@ -2,7 +2,7 @@
     "name": "@alexarts74/package-upload-wa-map",
     "version": "1.0.0",
     "description": "It is a package for uploading map in self hosted version.",
-    "main": "upload.ts",
+    "main": "upload.js",
     "scripts": {
         "upload": "tsc src/upload.ts && node src/upload.js"
     },
