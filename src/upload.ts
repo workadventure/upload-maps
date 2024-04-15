@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import * as fs from 'fs';
 import archiver = require('archiver');
 import  * as dotenv from 'dotenv';
