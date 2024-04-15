@@ -6,7 +6,7 @@ This package is designed to help you upload maps from Tiled to the map storage o
 
 To install this package, use the following command:
 
-> npm install @alexarts74/package-upload-wa-map
+> npm install @workadventure/upload-maps
 
 ## Usage
 
@@ -26,4 +26,4 @@ It will ask you some questions:
 
 > > After the upload succeeds, your folder will be placed inside the map-storage folder in public (map-storage/public).
 
-If you have any questions or need further assistance, don't hesitate to ask!
+If you have any questions or need further assistance, don't hesitate to ask ! (a.artus@workadventu.re)

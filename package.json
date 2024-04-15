@@ -1,5 +1,5 @@
 {
-    "name": "@alexarts74/package-upload-wa-map",
+    "name": "@workadventure/upload-maps",
     "version": "1.4.3",
     "description": "It is a package for uploading map in self hosted version.",
     "main": "upload.js",
@@ -9,7 +9,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/alexarts74/node-package-upload-wa-map.git"
+        "url": "git+https://github.com/workadventure/upload-maps.git"
     },
     "dependencies": {
         "@semantic-release/commit-analyzer": "^12.0.0",
