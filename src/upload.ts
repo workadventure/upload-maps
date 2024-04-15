@@ -1,7 +1,3 @@
-exports.printMsg = function() {
-    console.log("This is a message from the demo package");
-}
-
 import * as fs from 'fs';
 import archiver = require('archiver');
 import  * as dotenv from 'dotenv';
