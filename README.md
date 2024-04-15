@@ -1,6 +1,6 @@
 # Map Upload Package for WorkAdventure
 
-This package is designed to help you upload maps from Tild to the map storage of WorkAdventure.
+This package is designed to help you upload maps from Tiled to the map storage of WorkAdventure.
 
 ## Installation
 
@@ -12,7 +12,7 @@ To install this package, use the following command:
 
 To use this package, import it into your project and run the command in your terminal:
 
-> node node_modules/@alexarts74/package-upload-wa-map/src/upload.js
+> node_modules/.bin/upload-wa-map
 
 It will ask you some questions:
 
