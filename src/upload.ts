@@ -31,6 +31,10 @@ async function askQuestions() {
     let linkForMapStorageInfo = 'https://docs.workadventu.re/map-building/tiled-editor/';
 
     let apiKey;
+    let urlMapStorage;
+    let directory;
+
+
     if (process.env.API_KEY) {
         console.log("API Key found in .env file, you're good to go !");
         apiKey = process.env.API_KEY;
@@ -44,27 +48,36 @@ async function askQuestions() {
 
     console.log("------------------------------------");
 
-    let urlMapStorage;
-    console.log(`Now let's set up your map storage URL. If you don't know you can see more details to find it here : ${linkForMapStorageDocumentation}\nand here ${linkForMapStorageInfo} ! \nIf you don't put anything it will be by default http://map-storage.workadventure.localhost/upload`);
-    console.log("------------------------------------");
-    urlMapStorage = prompt(`Please enter your URL : `)
-    if (urlMapStorage && urlMapStorage !== ' ' && urlMapStorage !== undefined) {;
-        console.log('Your map storage URL is :', urlMapStorage);
+    if (process.env.URL_MAP_STORAGE) {
+        urlMapStorage = process.env.URL_MAP_STORAGE;
+        console.log("URL Map Storage found in .env file, you're good to go !");
     } else {
-        urlMapStorage = urlMapStoragedefault;
-        console.log('Your map storage URL is :', urlMapStoragedefault);
+        console.log(`Now let's set up your map storage URL. If you don't know you can see more details to find it here : ${linkForMapStorageDocumentation}\nand here ${linkForMapStorageInfo} ! \nIf you don't put anything it will be by default http://map-storage.workadventure.localhost/upload`);
+        console.log("------------------------------------");
+        if (!urlMapStorage || urlMapStorage === undefined || urlMapStorage === '') {
+            urlMapStorage = prompt(`Please enter your URL : `)
+            if (urlMapStorage && urlMapStorage !== ' ' && urlMapStorage !== undefined) {;
+                console.log('Your map storage URL is :', urlMapStorage);
+            } else {
+                urlMapStorage = urlMapStoragedefault;
+                console.log('Your map storage URL is :', urlMapStoragedefault);
+            }
+        }
     }
-
     console.log("------------------------------------");
 
-    let directory;
-    while (!directory || directory === undefined) {
-        directory = prompt('Name of directory ? If null it will be call by default map-user :');
-        if(directory) {
-            console.log('Your map will be in the directory :', directory);
-        } else {
-            directory = 'map-user';
-            console.log('Your map will be in the directory :', directory);
+    if (process.env.DIRECTORY) {
+        console.log("Directory found in .env file, you're good to go !");
+        directory = process.env.DIRECTORY
+    } else {
+        if (!directory || directory === undefined) {
+            directory = prompt('Name of directory ? If null it will be call by default map-user :');
+            if(directory) {
+                console.log('Your map will be in the directory :', directory);
+            } else {
+                directory = 'map-user';
+                console.log('Your map will be in the directory :', directory);
+            }
         }
     }
     return { apiKey, directory, urlMapStorage };
@@ -88,13 +101,13 @@ async function uploadMap(apiKey: string, urlMapStorage: string, directory: strin
     if (!fs.existsSync('.env')) {
         console.log("Creating .env file...")
     }
-    createEnvFile(apiKey);
+    createEnvFile(apiKey, urlMapStorage, directory);
 }
 
 
-function createEnvFile(apiKey: string) {
+function createEnvFile(apiKey: string, urlMapStorage: string, directory: string) {
     if (!fs.existsSync('.env')) {
-        fs.writeFileSync('.env', `LOG_LEVEL=1\nTILESET_OPTIMIZATION=false\nTILESET_OPTIMIZATION_QUALITY_MIN=0.9\nTILESET_OPTIMIZATION_QUALITY_MAX=1.0\nAPI_KEY=${apiKey}`);
+        fs.writeFileSync('.env', `LOG_LEVEL=1\nTILESET_OPTIMIZATION=false\nTILESET_OPTIMIZATION_QUALITY_MIN=0.9\nTILESET_OPTIMIZATION_QUALITY_MAX=1.0\nAPI_KEY=${apiKey}\nURL_MAP_STORAGE=${urlMapStorage}\nDIRECTORY=${directory}`);
         console.log('Env file created successfully');
     }
     else {
@@ -114,21 +127,16 @@ async function main() {
         console.log('Directory has been zipped');
         console.log("------------------------------------");
 
-
         // Demander des informations à l'utilisateur
         const { apiKey, directory, urlMapStorage } = await askQuestions();
-        console.log(`Your API Key is: ${apiKey}`);
-        console.log(`Your map will be inside the directory : ${directory}`);
-        console.log(`You're url of map storage is : ${urlMapStorage}`);
-
 
         // Envoyer l'upload
-        if (apiKey && urlMapStorage && directory) {
-            await uploadMap(apiKey, urlMapStorage, directory);
-        } else {
-            console.log("You need to provide an API Key and you're on the default URL : http://map-storage.workadventure.localhost/upload");
+        console.log("API KEY :",apiKey)
+        console.log("URL MAP STORAGE :", urlMapStorage)
+        console.log("DIRECTORY :", directory)
+        if (apiKey && urlMapStorage && (directory ?? '') || process.env.URL_MAPSTORAGE && process.env.API_KEY && process.env.DIRECTORY) {
+            await uploadMap(apiKey, urlMapStorage, directory ?? '');
         }
-
 
     } catch (err) {
         console.error('ERROR DE OUF :', err);
