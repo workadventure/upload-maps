@@ -1,8 +1,8 @@
 import * as fs from 'fs';
 import archiver = require('archiver');
 import  * as dotenv from 'dotenv';
-import axios from 'axios';
 import promptSync = require('prompt-sync');
+import axios from 'axios';
 
 const prompt = promptSync();
 dotenv.config();
