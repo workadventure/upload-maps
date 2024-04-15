@@ -20,10 +20,10 @@
       "strictFunctionTypes": false,
       "strictPropertyInitialization": false
     },
-    "include":[
+    "include": [
       "src"
     ],
-    "exclude":[
+    "exclude": [
       "node_modules",
     ]
 }
