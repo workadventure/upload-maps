@@ -16,7 +16,6 @@
       "downlevelIteration": true,
       "esModuleInterop": true,
       "allowSyntheticDefaultImports": true,
-      "strict": true,
       "strictFunctionTypes": false,
       "strictPropertyInitialization": false
     },
@@ -24,6 +23,6 @@
       "src"
     ],
     "exclude": [
-      "node_modules",
+      "node_modules"
     ]
 }
