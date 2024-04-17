@@ -56,6 +56,7 @@ async function askQuestions() {
     let linkForMapStorageInfo = 'https://docs.workadventu.re/map-building/tiled-editor/';
 
     let apiKey;
+    let uploadMode;
     let urlMapStorage;
     let directory;
 
@@ -75,7 +76,7 @@ async function askQuestions() {
                     console.log('Map storage URL is valid.');
                 } else {
                     console.log("------------------------------------");
-                    urlMapStorage = ''; // Clearing the invalid URL
+                    urlMapStorage = '';
                 }
             }
         }
@@ -132,11 +133,27 @@ async function askQuestions() {
             }
         }
     }
-    return { apiKey, directory, urlMapStorage };
+
+
+    if (process.env.UPLOAD_MODE) {
+        uploadMode = process.env.UPLOAD_MODE;
+        console.log("Your upload mode is : ", uploadMode);
+    } else {
+        console.log("Now let's set up your upload mode. To kwow what values are possible please check the README file");
+        uploadMode = prompt('Please enter your upload mode :');
+        console.log(uploadMode)
+        while (uploadMode !== 'MAP_STORAGE' && uploadMode !== 'GH_PAGES' && uploadMode !== 'CUSTOM') {
+            uploadMode = prompt('Please enter your upload mode LOLILOL :');
+        }
+        if (uploadMode)
+            console.log('Your upload mode is :', uploadMode);
+    }
+
+    return { apiKey, directory, urlMapStorage, uploadMode };
 }
 
 // Fonction pour effectuer l'upload avec axios
-async function uploadMap(apiKey: string, urlMapStorage: string, directory: string,) {
+async function uploadMap(apiKey: string, urlMapStorage: string, directory: string, uploadMode: string) {
 
     console.log("Uploading ...");
     await axios.post(urlMapStorage, {
@@ -157,18 +174,26 @@ async function uploadMap(apiKey: string, urlMapStorage: string, directory: strin
     if (!fs.existsSync('.env')) {
         console.log("Creating .env file...");
     }
-    createEnvsFiles(apiKey, urlMapStorage, directory);
+    createEnvsFiles(apiKey, urlMapStorage, directory, uploadMode);
 }
 
 // Fonction pour créer le fichier .env
-function createEnvsFiles(apiKey: string, urlMapStorage: string, directory: string) {
+function createEnvsFiles(apiKey: string, urlMapStorage: string, directory: string, uploadMode: string) {
     if (!fs.existsSync('.env') || fs.readFileSync('.env').length === 0){
-        fs.writeFileSync('.env', `LOG_LEVEL=1\nTILESET_OPTIMIZATION=false\nTILESET_OPTIMIZATION_QUALITY_MIN=0.9\nTILESET_OPTIMIZATION_QUALITY_MAX=1.0\nURL_MAP_STORAGE=${urlMapStorage}\nDIRECTORY=${directory}`);
+        fs.writeFileSync('.env', `LOG_LEVEL=1\nTILESET_OPTIMIZATION=false\nTILESET_OPTIMIZATION_QUALITY_MIN=0.9\nTILESET_OPTIMIZATION_QUALITY_MAX=1.0\nURL_MAP_STORAGE=${urlMapStorage}\nDIRECTORY=${directory}\nUPLOAD_MODE=${uploadMode}`);
         console.log('Env file created successfully');
+        if (process.env.API_KEY) {
+            fs.writeFileSync('.env', `LOG_LEVEL=1\nTILESET_OPTIMIZATION=false\nTILESET_OPTIMIZATION_QUALITY_MIN=0.9\nTILESET_OPTIMIZATION_QUALITY_MAX=1.0\nURL_MAP_STORAGE=${urlMapStorage}\nDIRECTORY=${directory}\nUPLOAD_MODE=${uploadMode}`);
+            delete process.env.API_KEY;
+        }
     }
     if (!fs.existsSync('.env.secret') || !fs.readFileSync('.env.secret').includes(apiKey)) {
             fs.writeFileSync('.env.secret', `API_KEY=${apiKey}`);
             console.log('API Key added to the .env file');
+        }
+        if (process.env.API_KEY) {
+            delete process.env.API_KEY;
+            fs.writeFileSync('.env', `LOG_LEVEL=1\nTILESET_OPTIMIZATION=false\nTILESET_OPTIMIZATION_QUALITY_MIN=0.9\nTILESET_OPTIMIZATION_QUALITY_MAX=1.0\nURL_MAP_STORAGE=${urlMapStorage}\nDIRECTORY=${directory}\nUPLOAD_MODE=${uploadMode}`);
         }
     }
 
@@ -184,11 +209,11 @@ async function main() {
         console.log("------------------------------------");
 
         // Demander des informations à l'utilisateur
-        const { apiKey, directory, urlMapStorage } = await askQuestions();
+        const { apiKey, directory, urlMapStorage, uploadMode } = await askQuestions();
 
         // Envoyer l'upload
-        if (apiKey && urlMapStorage && (directory ?? '') || process.env.URL_MAPSTORAGE && process.env.API_KEY && process.env.DIRECTORY) {
-            await uploadMap(apiKey, urlMapStorage, directory ?? '');
+        if (apiKey && urlMapStorage && (directory ?? '') && uploadMode || process.env.URL_MAPSTORAGE && process.env.API_KEY && process.env.DIRECTORY && process.env.UPLOAD_MODE) {
+            await uploadMap(apiKey, urlMapStorage, directory ?? '', uploadMode);
         }
 
     } catch (err) {
@@ -196,5 +221,4 @@ async function main() {
     }
 }
 
-// Exécuter la fonction principale
 main();
