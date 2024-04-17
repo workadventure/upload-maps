@@ -143,7 +143,7 @@ async function askQuestions() {
         uploadMode = prompt('Please enter your upload mode :');
         console.log(uploadMode)
         while (uploadMode !== 'MAP_STORAGE' && uploadMode !== 'GH_PAGES' && uploadMode !== 'CUSTOM') {
-            uploadMode = prompt('Please enter your upload mode LOLILOL :');
+            uploadMode = prompt('Please enter valid upload mode :');
         }
         if (uploadMode)
             console.log('Your upload mode is :', uploadMode);
