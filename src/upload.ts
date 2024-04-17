@@ -10,8 +10,6 @@ const prompt = promptSync();
 dotenv.config();
 
 
-// http://map-storage.workadventure.localhost/upload
-
 // Fonction pour créer le dossier zip
 async function createZipDirectory(sourceDir: string, outPath: fs.PathLike) {
     const archive = archiver('zip', { zlib: { level: 9 } });
