@@ -5,7 +5,6 @@ import archiver = require('archiver');
 import * as dotenv from 'dotenv';
 import promptSync = require('prompt-sync');
 import axios from 'axios';
-import { setUncaughtExceptionCaptureCallback } from 'process';
 
 const prompt = promptSync();
 dotenv.config();
@@ -136,7 +135,7 @@ async function askQuestions() {
     }
 
 
-    if (process.env.UPLOAD_MODE) {
+    if (process.env.UPLOAD_MODE === 'MAP_STORAGE') {
         uploadMode = process.env.UPLOAD_MODE;
         console.log("Your upload mode is : ", uploadMode);
     } else {
@@ -189,7 +188,10 @@ function createEnvsFiles(apiKey: string, urlMapStorage: string, directory: strin
             delete process.env.API_KEY;
             fs.writeFileSync('.env', `LOG_LEVEL=1\nTILESET_OPTIMIZATION=false\nTILESET_OPTIMIZATION_QUALITY_MIN=0.9\nTILESET_OPTIMIZATION_QUALITY_MAX=1.0\nURL_MAP_STORAGE=${urlMapStorage}\nDIRECTORY=${directory}\nUPLOAD_MODE=${uploadMode}`);
         }
+    if (fs.existsSync('.env')) {
+        fs.writeFileSync('.env', `LOG_LEVEL=1\nTILESET_OPTIMIZATION=false\nTILESET_OPTIMIZATION_QUALITY_MIN=0.9\nTILESET_OPTIMIZATION_QUALITY_MAX=1.0\nURL_MAP_STORAGE=${urlMapStorage}\nDIRECTORY=${directory}\nUPLOAD_MODE=${uploadMode}`);
     }
+}
 
 
 // Fonction principale
