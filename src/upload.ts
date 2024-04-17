@@ -5,6 +5,7 @@ import archiver = require('archiver');
 import * as dotenv from 'dotenv';
 import promptSync = require('prompt-sync');
 import axios from 'axios';
+import { setUncaughtExceptionCaptureCallback } from 'process';
 
 const prompt = promptSync();
 dotenv.config();
@@ -139,14 +140,7 @@ async function askQuestions() {
         uploadMode = process.env.UPLOAD_MODE;
         console.log("Your upload mode is : ", uploadMode);
     } else {
-        console.log("Now let's set up your upload mode. To kwow what values are possible please check the README file");
-        uploadMode = prompt('Please enter your upload mode :');
-        console.log(uploadMode)
-        while (uploadMode !== 'MAP_STORAGE' && uploadMode !== 'GH_PAGES' && uploadMode !== 'CUSTOM') {
-            uploadMode = prompt('Please enter valid upload mode :');
-        }
-        if (uploadMode)
-            console.log('Your upload mode is :', uploadMode);
+        uploadMode = 'MAP_STORAGE'
     }
 
     return { apiKey, directory, urlMapStorage, uploadMode };
