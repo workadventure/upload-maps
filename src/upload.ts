@@ -9,7 +9,6 @@ import axios from 'axios';
 const prompt = promptSync();
 dotenv.config();
 
-
 // Fonction pour créer le dossier zip
 async function createZipDirectory(sourceDir: string, outPath: fs.PathLike) {
     const archive = archiver('zip', { zlib: { level: 9 } });
@@ -61,7 +60,7 @@ async function askQuestions() {
 
     if (process.env.URL_MAP_STORAGE) {
         urlMapStorage = process.env.URL_MAP_STORAGE;
-        console.log("URL Map Storage found in .env file, you're good to go !");
+        console.log("URL Map Storage found, you're good to go !");
     } else {
         console.log(`Now let's set up your map storage URL. If you don't know you can see more details to find it here : ${linkForMapStorageDocumentation}\nand here ${linkForMapStorageInfo} !`);
         console.log("------------------------------------");
@@ -83,18 +82,19 @@ async function askQuestions() {
 
 
     const secretEnvPath = '.env.secret';
+    // If le script est lancé avec la commande dans le terminal
     if (fs.existsSync(secretEnvPath)) {
-        console.log("SECRET ENV FILE FOUND!")
+        console.log("Secret env found !")
         if (fs.readFileSync(secretEnvPath).includes('API_KEY')) {
-            console.log("SECRET ENV FILE FOUND AND NOT EMPTY!")
+            console.log("Secret env found and not empty!")
             const secretEnvContent = fs.readFileSync(secretEnvPath, 'utf8');
             const apiKeyMatch = secretEnvContent.match(/API_KEY=(.+)/);
             if (apiKeyMatch && apiKeyMatch[1]) {
                 apiKey = apiKeyMatch[1];
-                console.log("API Key found in .env.secret file, you're good to go !");
+                console.log("API Key found, you're good to go !");
             }
         } else {
-            console.log("SECRET ENV FILE FOUND BUT EMPTY!")
+            console.log("Secret env found but empty!")
             while (apiKey === '' || !apiKey || apiKey === undefined || apiKey === ' ') {
                 apiKey = prompt('Please enter your API Key ?');
                 if (apiKey)
@@ -104,13 +104,16 @@ async function askQuestions() {
             }
         }
     } else {
-        console.log("SECRET ENV FILE NOT FOUND!")
+        console.log("Secret env not found !")
         while (apiKey === '' || !apiKey || apiKey === undefined || apiKey === ' ') {
             apiKey = prompt('Please enter your API Key ?');
             if (apiKey)
                 console.log('Your API Key is :', apiKey);
         }
     }
+
+    // If le script est lancé avec le workflow de github action
+
 
 
     if (process.env.DIRECTORY) {
@@ -133,12 +136,36 @@ async function askQuestions() {
     }
 
 
-    if (process.env.UPLOAD_MODE === 'MAP_STORAGE') {
+    if (process.env.UPLOAD_MODE) {
         uploadMode = process.env.UPLOAD_MODE;
         console.log("Your upload mode is : ", uploadMode);
-    } else {
-        uploadMode = 'MAP_STORAGE'
+    } else if (!uploadMode || uploadMode === undefined) {
+        console.log("Please choose your upload mode : ");
+        console.log("1. MAP_STORAGE");
+        console.log("2. GH_PAGES");
+        console.log("3. CUSTOM");
+        console.log("------------------------------------");
+
+        let choice = prompt("Please enter the number of your choice : ");
+        console.log("------------------------------------");
+
+        while (choice !== '1' && choice !== '2' && choice !== '3') {
+            console.log("You have to choose a number between 1 and 3.");
+            choice = prompt("Please enter the number of your choice : ");
+            console.log("------------------------------------");
+        }
+        if (choice === '1') {
+            uploadMode = 'MAP_STORAGE';
+        } else if (choice === '2') {
+            uploadMode = 'GH_PAGES';
+        } else if (choice === '3') {
+            uploadMode = 'CUSTOM';
+            console.log("It will skip the upload part on push. You will have to upload your map manually.");
+        } else {
+            console.log("You have to choose a number between 1 and 3.");
+        }
     }
+
 
     return { apiKey, directory, urlMapStorage, uploadMode };
 }
@@ -146,35 +173,41 @@ async function askQuestions() {
 // Fonction pour effectuer l'upload avec axios
 async function uploadMap(apiKey: string, urlMapStorage: string, directory: string, uploadMode: string) {
 
-    console.log("Uploading ...");
-    await axios.post(urlMapStorage, {
-        apiKey: apiKey,
-        file: fs.createReadStream('dist.zip'),
-        directory: directory
-    }, {
-        headers: {
-            'Authorization': `Bearer ${apiKey}`,
-            'Content-Type': 'multipart/form-data'
+    if(uploadMode !== 'CUSTOM') {
+        console.log("Uploading ...");
+        await axios.post(urlMapStorage, {
+            apiKey: apiKey,
+            file: fs.createReadStream('dist.zip'),
+            directory: directory
+        }, {
+            headers: {
+                'Authorization': `Bearer ${apiKey}`,
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+
+        setTimeout(() => {
+            console.log('Upload done successfully');
+        }, 2000);
+
+        if (!fs.existsSync('.env')) {
+            console.log("Creating .env file...");
         }
-    });
+        createEnvsFiles(apiKey, urlMapStorage, directory, uploadMode);
 
-    setTimeout(() => {
-        console.log('Upload done successfully');
-    }, 2000);
-
-    if (!fs.existsSync('.env')) {
-        console.log("Creating .env file...");
     }
-    createEnvsFiles(apiKey, urlMapStorage, directory, uploadMode);
+    else {
+        createEnvsFiles(apiKey, urlMapStorage, directory, uploadMode);
+    }
 }
 
 // Fonction pour créer le fichier .env
 function createEnvsFiles(apiKey: string, urlMapStorage: string, directory: string, uploadMode: string) {
     if (!fs.existsSync('.env') || fs.readFileSync('.env').length === 0){
         fs.writeFileSync('.env', `LOG_LEVEL=1\nTILESET_OPTIMIZATION=false\nTILESET_OPTIMIZATION_QUALITY_MIN=0.9\nTILESET_OPTIMIZATION_QUALITY_MAX=1.0\nURL_MAP_STORAGE=${urlMapStorage}\nDIRECTORY=${directory}\nUPLOAD_MODE=${uploadMode}`);
-        console.log('Env file created successfully');
+        console.log('Env files created successfully');
         if (process.env.API_KEY) {
-            fs.writeFileSync('.env', `LOG_LEVEL=1\nTILESET_OPTIMIZATION=false\nTILESET_OPTIMIZATION_QUALITY_MIN=0.9\nTILESET_OPTIMIZATION_QUALITY_MAX=1.0\nURL_MAP_STORAGE=${urlMapStorage}\nDIRECTORY=${directory}\nUPLOAD_MODE=${uploadMode}`);
+            fs.writeFileSync('.env', `LOG_LEVEL=1\nTILESET_OPTIMIZATION=false\n{TILESET_OPTIMIZATION_QUALITY_MIN=0.9\nTILESET_OPTIMIZATION_QUALITY_MAX=1.0\nURL_MAP_STORAGE=${urlMapStorage}\nDIRECTORY=${directory}\nUPLOAD_MODE=${uploadMode}`);
             delete process.env.API_KEY;
         }
     }
