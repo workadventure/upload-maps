@@ -42,7 +42,3 @@ https://scribehow.com/shared/Upload_Map__Set_up_secrets_for_in_your_repository__
 > When your done you can just commit and push your changes and it's done !
 
 If you have any questions or need further assistance, don't hesitate to ask ! (a.artus@workadventu.re)
-
-PROBLEME AVEC LE LIEN POUR LA DOC DU MAP STORAGE
-
-https://docs.workadventu.re/map-building/tiled-editor/
