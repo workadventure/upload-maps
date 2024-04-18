@@ -22,22 +22,25 @@ To use this package, import it into your project and run the command in your ter
 
 It will ask you some questions:
 
-1. Your API Key. You can find it on https://admin.staging.workadventu.re
+1. Your API Key.
+   You can find it on https://admin.staging.workadventu.re
    On the left panel you can go to Developers tab --> API keys / Zapier.
    There you can create a new token. (Don't forget to save it !)
 
-2. The URL of your map storage. If you're self-hosted, it will be in the admin on : https://admin.staging.workadventu.re
+2. The URL of your map storage.
+   If you're self-hosted, it will be in the admin on : https://admin.staging.workadventu.re
    On the left panel you can go to Developers tab --> API keys / Zapier.
    There you can fine "Map-storage API endpoint" it is the url for uploading map storage
 
-3. You can also add a directory name if you want. If you leave this blank, the default name will be map-user.
+3. Directoy
+   You can also add a directory name if you want. If you leave this blank, the default name will be map-user.
    It will be the folder where all your uploaded files will be stored in.
 
 After answering these question, the script will start to upload your file. You need to see something like this : Upload done successfully
 
 To complete the upload, you need to set your secrets variables in your github repository. You need to set the URL of your map storage and your API Key.
 
-https://scribehow.com/shared/Upload_Map__Set_up_secrets_for_in_your_repository__FKsqAsrVQ_SzDavSudb19Q
+https://scribehow.com/shared/Set_up_secrets_for_in_your_repository__FKsqAsrVQ_SzDavSudb19Q
 
 > When your done you can just commit and push your changes and it's done !
 

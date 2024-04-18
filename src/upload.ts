@@ -56,6 +56,7 @@ async function askQuestions() {
     let uploadMode;
     let urlMapStorage;
     let directory;
+    let choice;
 
 
     if (process.env.URL_MAP_STORAGE) {
@@ -66,6 +67,7 @@ async function askQuestions() {
         console.log("------------------------------------");
         while (!urlMapStorage || urlMapStorage === undefined || urlMapStorage === '' || urlMapStorage === ' ') {
             urlMapStorage = prompt(`Please enter your URL : `);
+            urlMapStorage = urlMapStorage.concat("/upload");
             console.log('A URL is required to upload your map');
             console.log('-------------------------------------');
             if (urlMapStorage && urlMapStorage !== ' ' && urlMapStorage !== undefined) {;
@@ -82,7 +84,6 @@ async function askQuestions() {
 
 
     const secretEnvPath = '.env.secret';
-    // If le script est lancé avec la commande dans le terminal
     if (fs.existsSync(secretEnvPath)) {
         console.log("Secret env found !")
         if (fs.readFileSync(secretEnvPath).includes('API_KEY')) {
@@ -111,9 +112,6 @@ async function askQuestions() {
                 console.log('Your API Key is :', apiKey);
         }
     }
-
-    // If le script est lancé avec le workflow de github action
-
 
 
     if (process.env.DIRECTORY) {
@@ -146,7 +144,7 @@ async function askQuestions() {
         console.log("3. CUSTOM");
         console.log("------------------------------------");
 
-        let choice = prompt("Please enter the number of your choice : ");
+        choice = prompt("Please enter the number of your choice : ");
         console.log("------------------------------------");
 
         while (choice !== '1' && choice !== '2' && choice !== '3') {
@@ -165,7 +163,6 @@ async function askQuestions() {
             console.log("You have to choose a number between 1 and 3.");
         }
     }
-
 
     return { apiKey, directory, urlMapStorage, uploadMode };
 }
@@ -244,7 +241,7 @@ async function main() {
         }
 
     } catch (err) {
-        console.error('ERROR DE OUF :', err);
+        console.error('ERROR :', err);
     }
 }
 
