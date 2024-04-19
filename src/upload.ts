@@ -27,22 +27,27 @@ async function createZipDirectory(sourceDir: string, outPath: fs.PathLike) {
 
 // Fonction pour vérifier l'URL du map storage
 async function checkMapStorageUrl(urlMapStorage: string): Promise<boolean> {
-    try {
-        let testUrl = `${urlMapStorage.replace('/upload', '/ping')}`;
-        const response = await axios.get(`${testUrl}`);
-        console.log('Your map storage URL is :', urlMapStorage);
-        return response.status === 200;
-    } catch (err) {
-        console.log(err)
-        if (err.response && err.response.status === 401) {
-            console.log('Invalid URL. Please provide a valid URL.');
-        } else if (err.response && err.response.status === 403) {
-            console.log('Forbidden access. Please provide a valid API Key.');
-        } else if (err.response && err.response.status === 404) {
-            console.log('Invalid URL. Please provide a valid URL.');
-        } else {
-            console.log("An error occurred while checking the URL. Please provide a valid URL.");
+    if (urlMapStorage !== '/upload' && urlMapStorage !== undefined && urlMapStorage !== ' /upload' && urlMapStorage !== null) {
+        try {
+            let testUrl = `${urlMapStorage.replace('/upload', '/ping')}`;
+            const response = await axios.get(`${testUrl}`);
+            console.log('Your map storage URL is :', urlMapStorage);
+            return response.status === 200;
+        } catch (err) {
+            console.log(err)
+            if (err.response && err.response.status === 401) {
+                console.log('Invalid URL. Please provide a valid URL.');
+            } else if (err.response && err.response.status === 403) {
+                console.log('Forbidden access. Please provide a valid API Key.');
+            } else if (err.response && err.response.status === 404) {
+                console.log('Invalid URL. Please provide a valid URL.');
+            } else {
+                console.log("An error occurred while checking the URL. Please provide a valid URL.");
+            }
+            return false;
         }
+    } else {
+        console.log('Please provide a valid URL.');
         return false;
     }
 }
@@ -121,12 +126,8 @@ async function askQuestions() {
     } else {
         if (!directory || directory === undefined) {
             console.log("------------------------------------");
-            directory = prompt('Name of directory ? If null it will be call by default map-user :');
+            directory = prompt('Name of directory ? (optional)');
             if (directory) {
-                console.log('Your map will be in the directory :', directory);
-                console.log("------------------------------------");
-            } else {
-                directory = 'map-user';
                 console.log('Your map will be in the directory :', directory);
                 console.log("------------------------------------");
             }
@@ -168,8 +169,8 @@ async function askQuestions() {
 }
 
 // Fonction pour effectuer l'upload avec axios
-async function uploadMap(apiKey: string, urlMapStorage: string, directory: string, uploadMode: string) {
-
+async function uploadMap(apiKey: string, urlMapStorage: string, directory: string | null, uploadMode: string) {
+    console.log("DANS LA FONCTION UPLAOD")
     if(uploadMode !== 'CUSTOM') {
         console.log("Uploading ...");
         await axios.post(urlMapStorage, {

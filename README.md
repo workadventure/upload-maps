@@ -23,12 +23,12 @@ To use this package, import it into your project and run the command in your ter
 It will ask you some questions:
 
 1. Your API Key.
-   You can find it on https://admin.staging.workadventu.re
+   You can find it on https://admin.workadventu.re
    On the left panel you can go to Developers tab --> API keys / Zapier.
    There you can create a new token. (Don't forget to save it !)
 
 2. The URL of your map storage.
-   If you're self-hosted, it will be in the admin on : https://admin.staging.workadventu.re
+   If you're self-hosted, it will be in the admin on : https://admin.workadventu.re
    On the left panel you can go to Developers tab --> API keys / Zapier.
    There you can fine "Map-storage API endpoint" it is the url for uploading map storage
 
