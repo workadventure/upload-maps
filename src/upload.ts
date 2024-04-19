@@ -124,14 +124,18 @@ async function askQuestions() {
         console.log("Directory found in .env file, you're good to go !");
         console.log("------------------------------------");
     } else {
-        if (!directory || directory === undefined) {
+        // if (!directory || directory === undefined) {
+        console.log("------------------------------------");
+        directory = prompt('Name of directory ? (optional)');
+        if (directory) {
+            console.log('Your map will be in the directory :', directory);
             console.log("------------------------------------");
-            directory = prompt('Name of directory ? (optional)');
-            if (directory) {
-                console.log('Your map will be in the directory :', directory);
-                console.log("------------------------------------");
-            }
+        } else {
+            console.log("NO DIRECTORY")
+            directory = undefined;
+            console.log(typeof directory)
         }
+        // }
     }
 
 
@@ -168,8 +172,9 @@ async function askQuestions() {
     return { apiKey, directory, urlMapStorage, uploadMode };
 }
 
+
 // Fonction pour effectuer l'upload avec axios
-async function uploadMap(apiKey: string, urlMapStorage: string, directory: string | null, uploadMode: string) {
+async function uploadMap(apiKey: string, urlMapStorage: string, directory: string | null = null, uploadMode: string) {
     console.log("DANS LA FONCTION UPLAOD")
     if(uploadMode !== 'CUSTOM') {
         console.log("Uploading ...");
@@ -192,7 +197,6 @@ async function uploadMap(apiKey: string, urlMapStorage: string, directory: strin
             console.log("Creating .env file...");
         }
         createEnvsFiles(apiKey, urlMapStorage, directory, uploadMode);
-
     }
     else {
         createEnvsFiles(apiKey, urlMapStorage, directory, uploadMode);
@@ -237,9 +241,15 @@ async function main() {
         const { apiKey, directory, urlMapStorage, uploadMode } = await askQuestions();
 
         // Envoyer l'upload
-        if (apiKey && urlMapStorage && (directory ?? '') && uploadMode || process.env.URL_MAPSTORAGE && process.env.API_KEY && process.env.DIRECTORY && process.env.UPLOAD_MODE) {
-            await uploadMap(apiKey, urlMapStorage, directory ?? '', uploadMode);
+        if (apiKey && urlMapStorage && uploadMode || process.env.URL_MAPSTORAGE && process.env.API_KEY && process.env.UPLOAD_MODE) {
+            console.log("je passe dans la fonction upload"); // Voir pour upload sans parametre le directory ou avec un directory
+            if (directory) {
+                await uploadMap(apiKey, urlMapStorage, directory, uploadMode);
+            } else {
+                await uploadMap(apiKey, urlMapStorage, null, uploadMode);
+            }
         }
+
 
     } catch (err) {
         console.error('ERROR :', err);
