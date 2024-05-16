@@ -61,8 +61,6 @@ async function askQuestions() {
     let uploadMode;
     let urlMapStorage;
     let directory;
-    let choice;
-
 
     if (process.env.URL_MAP_STORAGE) {
         urlMapStorage = process.env.URL_MAP_STORAGE;
