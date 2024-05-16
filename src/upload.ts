@@ -133,40 +133,14 @@ async function askQuestions() {
         } else {
             console.log("NO DIRECTORY")
             directory = undefined;
-            console.log(typeof directory)
         }
-        // }
     }
-
 
     if (process.env.UPLOAD_MODE) {
         uploadMode = process.env.UPLOAD_MODE;
         console.log("Your upload mode is : ", uploadMode);
-    } else if (!uploadMode || uploadMode === undefined) {
-        console.log("Please choose your upload mode : ");
-        console.log("1. MAP_STORAGE");
-        console.log("2. GH_PAGES");
-        console.log("3. CUSTOM");
-        console.log("------------------------------------");
-
-        choice = prompt("Please enter the number of your choice : ");
-        console.log("------------------------------------");
-
-        while (choice !== '1' && choice !== '2' && choice !== '3') {
-            console.log("You have to choose a number between 1 and 3.");
-            choice = prompt("Please enter the number of your choice : ");
-            console.log("------------------------------------");
-        }
-        if (choice === '1') {
-            uploadMode = 'MAP_STORAGE';
-        } else if (choice === '2') {
-            uploadMode = 'GH_PAGES';
-        } else if (choice === '3') {
-            uploadMode = 'CUSTOM';
-            console.log("It will skip the upload part on push. You will have to upload your map manually.");
-        } else {
-            console.log("You have to choose a number between 1 and 3.");
-        }
+    } else {
+        uploadMode = 'MAP_STORAGE'
     }
 
     return { apiKey, directory, urlMapStorage, uploadMode };
