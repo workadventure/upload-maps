@@ -1,9 +1,7 @@
 name: CI/CD
 
 on:
-  push:
-    branches:
-      - master
+  - push
 
 jobs:
   build:
@@ -32,7 +30,9 @@ jobs:
         run: npm run build
 
       - name: Run Semantic Release
+        if: github.ref == 'refs/heads/master'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npx semantic-release
+
