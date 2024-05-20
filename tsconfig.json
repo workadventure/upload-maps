@@ -1,28 +1,9 @@
 {
-    "compilerOptions": {
-      "module": "commonjs",
-      "outDir": "./dist",
-      "lib": [
-        "es2020",
-        "es2021",
-        "DOM"
-      ],
-      "target": "es6",
-      "removeComments": false,
-      "sourceMap": true,
-      "inlineSources": true,
-      "declaration": true,
-      "resolveJsonModule": true,
-      "downlevelIteration": true,
-      "esModuleInterop": true,
-      "allowSyntheticDefaultImports": true,
-      "strictFunctionTypes": false,
-      "strictPropertyInitialization": false
-    },
-    "include": [
-      "src"
-    ],
-    "exclude": [
-      "node_modules"
-    ]
+  "extends": "@total-typescript/tsconfig/tsc/no-dom/library",
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

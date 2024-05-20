@@ -1,5 +1,6 @@
 {
     "name": "@workadventure/upload-maps",
+    "type": "module",
     "version": "1.4.4",
     "description": "It is a package for uploading map in self hosted version.",
     "main": "upload.js",
@@ -28,7 +29,8 @@
     "author": "Alexandre ARTUS  <a.artus@workadventu.re>",
     "license": "ISC",
     "devDependencies": {
-        "@types/node": "^20.12.7",
+        "@total-typescript/tsconfig": "^1.0.4",
+        "@types/node": "^20.12.12",
         "semantic-release": "^23.0.8",
         "typescript": "^5.4.5"
     },
