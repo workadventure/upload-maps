@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import archiver = require('archiver');
 import * as dotenv from 'dotenv';
 import promptSync = require('prompt-sync');
-import axios from 'axios';
+import axios, {isAxiosError} from 'axios';
 
 const prompt = promptSync();
 dotenv.config();
@@ -35,11 +35,11 @@ async function checkMapStorageUrl(mapStorageUrl: string): Promise<boolean> {
             return response.status === 200;
         } catch (err) {
             console.log(err)
-            if (err.response && err.response.status === 401) {
+            if (isAxiosError(err) && err.response?.status === 401) {
                 console.log('Invalid URL. Please provide a valid URL.');
-            } else if (err.response && err.response.status === 403) {
+            } else if (isAxiosError(err) && err.response?.status === 403) {
                 console.log('Forbidden access. Please provide a valid API Key.');
-            } else if (err.response && err.response.status === 404) {
+            } else if (isAxiosError(err) && err.response?.status === 404) {
                 console.log('Invalid URL. Please provide a valid URL.');
             } else {
                 console.log("An error occurred while checking the URL. Please provide a valid URL.");
@@ -57,7 +57,7 @@ async function askQuestions() {
     let linkForMapStorageDocumentation = 'https://github.com/workadventure/workadventure/blob/develop/map-storage/README.md';
     let linkForMapStorageInfo = 'https://docs.workadventu.re/map-building/tiled-editor/';
 
-    let apiKey;
+    let apiKey : string = "";
     let uploadMode;
     let mapStorageUrl;
     let directory;
@@ -101,9 +101,10 @@ async function askQuestions() {
             console.log("Secret env found but empty!")
             while (apiKey === '' || !apiKey || apiKey === undefined || apiKey === ' ') {
                 apiKey = prompt('Please enter your API Key ?');
-                if (apiKey)
+                if (apiKey) {
                     console.log('Your API Key is :', apiKey);
                     console.log("------------------------------------");
+                }
 
             }
         }
@@ -111,8 +112,9 @@ async function askQuestions() {
         console.log("Secret env not found !")
         while (apiKey === '' || !apiKey || apiKey === undefined || apiKey === ' ') {
             apiKey = prompt('Please enter your API Key ?');
-            if (apiKey)
+            if (apiKey) {
                 console.log('Your API Key is :', apiKey);
+            }
         }
     }
 
@@ -146,7 +148,7 @@ async function askQuestions() {
 
 
 // Fonction pour effectuer l'upload avec axios
-async function uploadMap(apiKey: string, mapStorageUrl: string, directory: string | null = null, uploadMode: string) {
+async function uploadMap(apiKey: string, mapStorageUrl: string, directory: string, uploadMode: string) {
     if(uploadMode !== 'CUSTOM') {
         console.log("Uploading ...");
         await axios.post(mapStorageUrl, {
@@ -213,11 +215,7 @@ async function main() {
 
         // Envoyer l'upload
         if (apiKey && mapStorageUrl && uploadMode || process.env.URL_MAPSTORAGE && process.env.API_KEY && process.env.UPLOAD_MODE) {
-            if (directory) {
-                await uploadMap(apiKey, mapStorageUrl, directory, uploadMode);
-            } else {
-                await uploadMap(apiKey, mapStorageUrl, null, uploadMode);
-            }
+            await uploadMap(apiKey, mapStorageUrl, directory ?? "", uploadMode);
         }
 
 
