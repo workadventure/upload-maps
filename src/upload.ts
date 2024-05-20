@@ -9,6 +9,11 @@ import axios, {isAxiosError} from 'axios';
 const prompt = promptSync();
 dotenv.config();
 
+// TODO: install eslint and prettier (and set those in the CI/CD pipeline)
+
+// TODO: try to use a CLI utility package to help parsing options passed in the command line (like yargs or commander or meow)
+
+// TODO: translate comments to english
 // Fonction pour créer le dossier zip
 async function createZipDirectory(sourceDir: string, outPath: fs.PathLike) {
     const archive = archiver('zip', { zlib: { level: 9 } });
@@ -85,6 +90,8 @@ async function askQuestions() {
     }
     console.log("------------------------------------");
 
+    // TODO: don't process .env files manually. Instead, use dotenv for this.
+    // TODO: you can use dotenv.config({ path: '/full/custom/path/to/your/.env' }) to load another .env file
 
     const secretEnvPath = '.env.secret';
     if (fs.existsSync(secretEnvPath)) {
@@ -195,6 +202,7 @@ function createEnvsFiles(apiKey: string, mapStorageUrl: string, directory: strin
             fs.writeFileSync('.env', `LOG_LEVEL=1\nTILESET_OPTIMIZATION=false\nTILESET_OPTIMIZATION_QUALITY_MIN=0.9\nTILESET_OPTIMIZATION_QUALITY_MAX=1.0\nMAP_STORAGE_URL=${mapStorageUrl}\nDIRECTORY=${directory}\nUPLOAD_MODE=${uploadMode}`);
         }
     if (fs.existsSync('.env')) {
+        // TODO: here, you are overwriting the .env file and not displaying anything to the user
         fs.writeFileSync('.env', `LOG_LEVEL=1\nTILESET_OPTIMIZATION=false\nTILESET_OPTIMIZATION_QUALITY_MIN=0.9\nTILESET_OPTIMIZATION_QUALITY_MAX=1.0\nMAP_STORAGE_URL=${mapStorageUrl}\nDIRECTORY=${directory}\nUPLOAD_MODE=${uploadMode}`);
     }
 }
