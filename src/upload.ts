@@ -24,7 +24,7 @@ async function createZipDirectory(sourceDir: string, outPath: fs.PathLike) {
             .pipe(stream);
 
         stream.on("close", () => resolve());
-        archive.finalize().catch(e => console.error(e));
+        archive.finalize().catch((e) => console.error(e));
     });
 }
 
@@ -199,24 +199,23 @@ function createEnvsFiles(mapStorageApiKey: string, mapStorageUrl: string, direct
 
 // Fonction for upload
 async function main() {
-        // Create zip file
-        const sourceDirectory = "dist";
-        const finalDirectory = "dist.zip";
-        await createZipDirectory(sourceDirectory, finalDirectory);
-        console.log("Directory has been zipped");
-        console.log("------------------------------------");
+    // Create zip file
+    const sourceDirectory = "dist";
+    const finalDirectory = "dist.zip";
+    await createZipDirectory(sourceDirectory, finalDirectory);
+    console.log("Directory has been zipped");
+    console.log("------------------------------------");
 
-        // Ask user input
-        const { mapStorageApiKey, directory, mapStorageUrl, uploadMode } = await askQuestions();
+    // Ask user input
+    const { mapStorageApiKey, directory, mapStorageUrl, uploadMode } = await askQuestions();
 
-        // Envoyer l'upload
-        if (
-            (mapStorageApiKey && mapStorageUrl && uploadMode) ||
-            (process.env.URL_MAPSTORAGE && process.env.API_KEY && process.env.UPLOAD_MODE)
-        ) {
-            await uploadMap(mapStorageApiKey, mapStorageUrl, directory ?? "", uploadMode);
-        }
-
+    // Envoyer l'upload
+    if (
+        (mapStorageApiKey && mapStorageUrl && uploadMode) ||
+        (process.env.URL_MAPSTORAGE && process.env.API_KEY && process.env.UPLOAD_MODE)
+    ) {
+        await uploadMap(mapStorageApiKey, mapStorageUrl, directory ?? "", uploadMode);
+    }
 }
 
-main().catch(err => console.error(err));
+main().catch((err) => console.error(err));
