@@ -10,6 +10,7 @@ const prompt = promptSync();
 dotenv.config();
 
 let apiKeyFilledInUpload = false;
+let variableEnv = false;
 
 // Function to create the zip folder
 async function createZipDirectory(sourceDir: string, outPath: fs.PathLike) {
@@ -37,6 +38,7 @@ async function checkMapStorageUrl(mapStorageUrl: string): Promise<boolean> {
     ) {
         try {
             const testUrl = `${mapStorageUrl.replace("/upload", "/ping")}`;
+            console.log("test URL :", testUrl)
             const response = await axios.get(`${testUrl}`);
             console.log("Your map storage URL is :", mapStorageUrl);
             return response.status === 200;
@@ -86,6 +88,7 @@ async function askQuestions() {
             console.log("-------------------------------------");
             if (mapStorageUrl && mapStorageUrl !== " " && mapStorageUrl !== undefined) {
                 if (await checkMapStorageUrl(mapStorageUrl)) {
+                    variableEnv = true
                     console.log("Map storage URL is valid.");
                 } else {
                     console.log("------------------------------------");
@@ -96,12 +99,13 @@ async function askQuestions() {
     }
     console.log("------------------------------------");
 
-    dotenv.config({ path: "./env.secret" });
+    dotenv.config({ path: ".env.secret" });
 
     if (process.env.API_KEY) {
         mapStorageApiKey = process.env.API_KEY;
         console.log("Secret env found and not empty!");
-    } else {
+    }
+    else {
         console.log("Secret env found but empty!");
         while (
             mapStorageApiKey === "" ||
@@ -123,10 +127,10 @@ async function askQuestions() {
         console.log("Directory found in .env file, you're good to go !");
         console.log("------------------------------------");
     } else {
-        // if (!directory || directory === undefined) {
         console.log("------------------------------------");
         directory = prompt("Name of directory ? (optional)");
         if (directory) {
+            variableEnv = true
             console.log("Your map will be in the directory :", directory);
             console.log("------------------------------------");
         } else {
@@ -138,8 +142,10 @@ async function askQuestions() {
     if (process.env.UPLOAD_MODE) {
         uploadMode = process.env.UPLOAD_MODE;
         console.log("Your upload mode is : ", uploadMode);
+        variableEnv = true
     } else {
         uploadMode = "MAP_STORAGE";
+        variableEnv = true
     }
 
     return { mapStorageApiKey, directory, mapStorageUrl, uploadMode };
@@ -174,45 +180,30 @@ async function uploadMap(
 
     if (!fs.existsSync(".env")) {
         console.log("Creating .env file...");
+        createEnvsFiles(mapStorageApiKey, mapStorageUrl, directory, uploadMode);
     }
 
-    if (apiKeyFilledInUpload) {
+    if (apiKeyFilledInUpload || variableEnv) {
         createEnvsFiles(mapStorageApiKey, mapStorageUrl, directory, uploadMode);
     }
 }
 
-// Function to create the .env file
+// Function to create the .env files
 function createEnvsFiles(mapStorageApiKey: string, mapStorageUrl: string, directory: string, uploadMode: string) {
-    if (!fs.existsSync(".env") || fs.readFileSync(".env").length === 0) {
+    if (!fs.existsSync(".env") || fs.readFileSync(".env").length === 0 || variableEnv) {
         fs.writeFileSync(
             ".env",
             `LOG_LEVEL=1\nTILESET_OPTIMIZATION=false\nTILESET_OPTIMIZATION_QUALITY_MIN=0.9\nTILESET_OPTIMIZATION_QUALITY_MAX=1.0\nURL_MAP_STORAGE=${mapStorageUrl}\nDIRECTORY=${directory}\nUPLOAD_MODE=${uploadMode}`,
         );
         console.log("Env files created successfully");
         if (process.env.API_KEY) {
-            fs.writeFileSync(
-                ".env",
-                `LOG_LEVEL=1\nTILESET_OPTIMIZATION=false\n{TILESET_OPTIMIZATION_QUALITY_MIN=0.9\nTILESET_OPTIMIZATION_QUALITY_MAX=1.0\nURL_MAP_STORAGE=${mapStorageUrl}\nDIRECTORY=${directory}\nUPLOAD_MODE=${uploadMode}`,
-            );
             delete process.env.API_KEY;
         }
     }
+
     if (!fs.existsSync(".env.secret") || !fs.readFileSync(".env.secret").includes(mapStorageApiKey)) {
         fs.writeFileSync(".env.secret", `API_KEY=${mapStorageApiKey}`);
         console.log("API Key added to the .env file");
-    }
-    if (process.env.API_KEY) {
-        delete process.env.API_KEY;
-        fs.writeFileSync(
-            ".env",
-            `LOG_LEVEL=1\nTILESET_OPTIMIZATION=false\nTILESET_OPTIMIZATION_QUALITY_MIN=0.9\nTILESET_OPTIMIZATION_QUALITY_MAX=1.0\nURL_MAP_STORAGE=${mapStorageUrl}\nDIRECTORY=${directory}\nUPLOAD_MODE=${uploadMode}`,
-        );
-    }
-    if (fs.existsSync(".env")) {
-        fs.writeFileSync(
-            ".env",
-            `LOG_LEVEL=1\nTILESET_OPTIMIZATION=false\nTILESET_OPTIMIZATION_QUALITY_MIN=0.9\nTILESET_OPTIMIZATION_QUALITY_MAX=1.0\nURL_MAP_STORAGE=${mapStorageUrl}\nDIRECTORY=${directory}\nUPLOAD_MODE=${uploadMode}`,
-        );
     }
 }
 
