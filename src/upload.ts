@@ -5,12 +5,16 @@ import archiver = require("archiver");
 import * as dotenv from "dotenv";
 import promptSync = require("prompt-sync");
 import axios from "axios";
+import yargs = require("yargs");
+
 
 const prompt = promptSync();
 dotenv.config();
 
 let apiKeyFilledInUpload = false;
 let variableEnv = false;
+
+
 
 // Function to create the zip folder
 async function createZipDirectory(sourceDir: string, outPath: fs.PathLike) {
@@ -64,14 +68,54 @@ async function checkMapStorageUrl(mapStorageUrl: string): Promise<boolean> {
 // Ask input for users
 
 async function askQuestions() {
-    const linkForMapStorageDocumentation =
-        "https://github.com/workadventure/workadventure/blob/develop/map-storage/README.md";
+
+    const linkForMapStorageDocumentation = "https://github.com/workadventure/workadventure/blob/develop/map-storage/README.md";
     const linkForMapStorageInfo = "https://docs.workadventu.re/map-building/tiled-editor/";
+
+    // const argv = yargs.options({
+
+    // })
+    // .apiKey: {
+    //     alias: "k",
+    //     describe: "API Key for the script",
+    //     demandOption: false, // Indique si l'option est obligatoire
+    //     type: "string" // Type de la valeur de l'option
+    // }
+    // .option("directory", {
+    //     alias: "d",
+    //     describe: "Directory for the script",
+    //     demandOption: false,
+    //     type: "string"
+    // })
+    // .option("uploadMode", {
+    //     alias: "u",
+    //     describe: "Upload mode for the script",
+    //     demandOption: false,
+    //     type: "string"
+    // })
+    // .option("mapStorageUrl", {
+    //     alias: "m",
+    //     describe: "Map Storage Url for the script",
+    //     demandOption: false,
+    //     type: "string"
+    // })
+    // .help()
+    // .argv;
+
+    // console.log(argv);
+    // console.log(argv.option.toFixed(0));
+
+
+    // let uploadMode = process.env.UPLOAD_MODE || (await argv).uploadMode;
+    // let mapStorageUrl = process.env.MAP_STORAGE || (await argv).mapStorageUrl || undefined;
+    // let directory = process.env.MAP_STORAGE || (await argv).directory || undefined;
+    // let directory = (await argv).directory || process.env.DIRECTORY;
 
     let mapStorageApiKey;
     let uploadMode;
     let mapStorageUrl;
     let directory;
+
 
     if (process.env.URL_MAP_STORAGE) {
         mapStorageUrl = process.env.URL_MAP_STORAGE;
@@ -121,6 +165,24 @@ async function askQuestions() {
         }
     }
 
+    //test with argv
+
+    // if (directory !== (await argv).directory || directory !== process.env.DIRECTORY) {
+    //     console.log(directory)
+    //     console.log("------------------------------------");
+    //     directory = prompt("Name of directory ? (optional)");
+    //     if (directory) {
+    //         variableEnv = true;
+    //         console.log("Your map will be in the directory :", directory);
+    //         console.log("------------------------------------");
+    //     } else {
+    //         console.log("NO DIRECTORY");
+    //         directory = undefined;
+    //     }
+    // } else {
+    //     directory = (await argv).directory || process.env.DIRECTORY;
+    // }
+
     if (process.env.DIRECTORY) {
         directory = process.env.DIRECTORY;
         console.log("Directory found in .env file, you're good to go !");
@@ -138,6 +200,26 @@ async function askQuestions() {
         }
     }
 
+    // test with argv
+
+    // if (uploadMode) {
+    //     console.log("bonjour je suis dans le argv")
+    //     uploadMode = "MAP_STORAGE"
+    //     console.log(uploadMode)
+    // } else {
+    //     console.log(uploadMode)
+    //     console.log("AU REVOIR")
+    // }
+
+    // if (uploadMode !== (await argv).uploadMode || uploadMode !== process.env.UPLOAD_MODE) {
+    //     console.log("BONJOUR")
+    //     console.log(uploadMode)
+    // } else {
+    //     console.log(uploadMode)
+    //     console.log("AU REVOIR")
+    // }
+
+
     if (process.env.UPLOAD_MODE) {
         uploadMode = process.env.UPLOAD_MODE;
         console.log("Your upload mode is : ", uploadMode);
@@ -146,6 +228,7 @@ async function askQuestions() {
         uploadMode = "MAP_STORAGE";
         variableEnv = true;
     }
+
 
     return { mapStorageApiKey, directory, mapStorageUrl, uploadMode };
 }

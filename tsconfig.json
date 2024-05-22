@@ -3,7 +3,7 @@
         "module": "commonjs",
         "outDir": "./dist",
         "lib": ["es2020", "es2021", "DOM"],
-        "target": "es6",
+        "target": "es2022",
         "removeComments": false,
         "sourceMap": true,
         "inlineSources": true,
