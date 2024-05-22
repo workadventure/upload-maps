@@ -38,7 +38,7 @@ async function checkMapStorageUrl(mapStorageUrl: string): Promise<boolean> {
     ) {
         try {
             const testUrl = `${mapStorageUrl.replace("/upload", "/ping")}`;
-            console.log("test URL :", testUrl)
+            console.log("test URL :", testUrl);
             const response = await axios.get(`${testUrl}`);
             console.log("Your map storage URL is :", mapStorageUrl);
             return response.status === 200;
@@ -88,7 +88,7 @@ async function askQuestions() {
             console.log("-------------------------------------");
             if (mapStorageUrl && mapStorageUrl !== " " && mapStorageUrl !== undefined) {
                 if (await checkMapStorageUrl(mapStorageUrl)) {
-                    variableEnv = true
+                    variableEnv = true;
                     console.log("Map storage URL is valid.");
                 } else {
                     console.log("------------------------------------");
@@ -104,8 +104,7 @@ async function askQuestions() {
     if (process.env.API_KEY) {
         mapStorageApiKey = process.env.API_KEY;
         console.log("Secret env found and not empty!");
-    }
-    else {
+    } else {
         console.log("Secret env found but empty!");
         while (
             mapStorageApiKey === "" ||
@@ -130,7 +129,7 @@ async function askQuestions() {
         console.log("------------------------------------");
         directory = prompt("Name of directory ? (optional)");
         if (directory) {
-            variableEnv = true
+            variableEnv = true;
             console.log("Your map will be in the directory :", directory);
             console.log("------------------------------------");
         } else {
@@ -142,10 +141,10 @@ async function askQuestions() {
     if (process.env.UPLOAD_MODE) {
         uploadMode = process.env.UPLOAD_MODE;
         console.log("Your upload mode is : ", uploadMode);
-        variableEnv = true
+        variableEnv = true;
     } else {
         uploadMode = "MAP_STORAGE";
-        variableEnv = true
+        variableEnv = true;
     }
 
     return { mapStorageApiKey, directory, mapStorageUrl, uploadMode };
