@@ -5,7 +5,10 @@
     "main": "upload.js",
     "scripts": {
         "build": "tsc",
-        "upload": "npm run build && node dist/upload.js"
+        "upload": "npm run build && node dist/upload.js",
+        "lint": "eslint . --ext .ts",
+        "pretty": "prettier --write .",
+        "pretty-check": "prettier --check ."
     },
     "repository": {
         "type": "git",
@@ -28,7 +31,16 @@
     "author": "Alexandre ARTUS  <a.artus@workadventu.re>",
     "license": "ISC",
     "devDependencies": {
+        "@eslint/compat": "^1.0.1",
+        "@eslint/js": "^9.3.0",
         "@types/node": "^20.12.7",
+        "@typescript-eslint/eslint-plugin": "^5.62.0",
+        "@typescript-eslint/parser": "^5.62.0",
+        "eslint": "^8.56.0",
+        "eslint-config-prettier": "^9.1.0",
+        "eslint-plugin-prettier": "^5.1.3",
+        "globals": "^15.3.0",
+        "prettier": "^3.2.5",
         "semantic-release": "^23.0.8",
         "typescript": "^5.4.5"
     },
