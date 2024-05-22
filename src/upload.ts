@@ -36,7 +36,7 @@ async function checkMapStorageUrl(mapStorageUrl: string): Promise<boolean> {
         mapStorageUrl !== null
     ) {
         try {
-            let testUrl = `${mapStorageUrl.replace("/upload", "/ping")}`;
+            const testUrl = `${mapStorageUrl.replace("/upload", "/ping")}`;
             const response = await axios.get(`${testUrl}`);
             console.log("Your map storage URL is :", mapStorageUrl);
             return response.status === 200;
@@ -62,9 +62,9 @@ async function checkMapStorageUrl(mapStorageUrl: string): Promise<boolean> {
 // Ask input for users
 
 async function askQuestions() {
-    let linkForMapStorageDocumentation =
+    const linkForMapStorageDocumentation =
         "https://github.com/workadventure/workadventure/blob/develop/map-storage/README.md";
-    let linkForMapStorageInfo = "https://docs.workadventu.re/map-building/tiled-editor/";
+    const linkForMapStorageInfo = "https://docs.workadventu.re/map-building/tiled-editor/";
 
     let mapStorageApiKey;
     let uploadMode;
