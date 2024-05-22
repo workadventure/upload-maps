@@ -152,7 +152,6 @@ async function uploadMap(
     directory: string | null = null,
     uploadMode: string,
 ) {
-    // if(uploadMode !== 'CUSTOM') {
     console.log("Uploading ...");
     await axios.post(
         mapStorageUrl,
@@ -181,12 +180,6 @@ async function uploadMap(
         createEnvsFiles(mapStorageApiKey, mapStorageUrl, directory, uploadMode);
     }
 }
-//     else {
-//         if (apiKeyFilledInUpload) {
-//             createEnvsFiles(mapStorageApiKey, mapStorageUrl, directory, uploadMode);
-//         }
-//     }
-// }
 
 // Function to create the .env file
 function createEnvsFiles(mapStorageApiKey: string, mapStorageUrl: string, directory: string, uploadMode: string) {
