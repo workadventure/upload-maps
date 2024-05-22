@@ -4,9 +4,7 @@ import * as fs from "fs";
 import archiver = require("archiver");
 import * as dotenv from "dotenv";
 import promptSync = require("prompt-sync");
-import axios from "axios";
-import yargs = require("yargs");
-
+import axios, { isAxiosError } from "axios";
 
 const prompt = promptSync();
 dotenv.config();
@@ -28,11 +26,11 @@ async function createZipDirectory(sourceDir: string, outPath: fs.PathLike) {
             .pipe(stream);
 
         stream.on("close", () => resolve());
-        archive.finalize();
+        archive.finalize().catch((e) => console.error(e));
     });
 }
 
-// Function to check map storage URL
+// Fonction pour vérifier l'URL du map storage
 async function checkMapStorageUrl(mapStorageUrl: string): Promise<boolean> {
     if (
         mapStorageUrl !== "/upload" &&
@@ -42,17 +40,16 @@ async function checkMapStorageUrl(mapStorageUrl: string): Promise<boolean> {
     ) {
         try {
             const testUrl = `${mapStorageUrl.replace("/upload", "/ping")}`;
-            console.log("test URL :", testUrl);
             const response = await axios.get(`${testUrl}`);
             console.log("Your map storage URL is :", mapStorageUrl);
             return response.status === 200;
         } catch (err) {
             console.log(err);
-            if (err.response && err.response.status === 401) {
+            if (isAxiosError(err) && err.response?.status === 401) {
                 console.log("Invalid URL. Please provide a valid URL.");
-            } else if (err.response && err.response.status === 403) {
+            } else if (isAxiosError(err) && err.response?.status === 403) {
                 console.log("Forbidden access. Please provide a valid API Key.");
-            } else if (err.response && err.response.status === 404) {
+            } else if (isAxiosError(err) && err.response?.status === 404) {
                 console.log("Invalid URL. Please provide a valid URL.");
             } else {
                 console.log("An error occurred while checking the URL. Please provide a valid URL.");
@@ -111,14 +108,13 @@ async function askQuestions() {
     // let directory = process.env.MAP_STORAGE || (await argv).directory || undefined;
     // let directory = (await argv).directory || process.env.DIRECTORY;
 
-    let mapStorageApiKey;
+    let mapStorageApiKey = "";
     let uploadMode;
     let mapStorageUrl;
-    let directory;
+    let directory = "";
 
-
-    if (process.env.URL_MAP_STORAGE) {
-        mapStorageUrl = process.env.URL_MAP_STORAGE;
+    if (process.env.MAP_STORAGE_URL) {
+        mapStorageUrl = process.env.MAP_STORAGE_URL;
         console.log("URL Map Storage found, you're good to go !");
     } else {
         console.log(
@@ -132,7 +128,6 @@ async function askQuestions() {
             console.log("-------------------------------------");
             if (mapStorageUrl && mapStorageUrl !== " " && mapStorageUrl !== undefined) {
                 if (await checkMapStorageUrl(mapStorageUrl)) {
-                    variableEnv = true;
                     console.log("Map storage URL is valid.");
                 } else {
                     console.log("------------------------------------");
@@ -196,29 +191,9 @@ async function askQuestions() {
             console.log("------------------------------------");
         } else {
             console.log("NO DIRECTORY");
-            directory = undefined;
+            directory = "";
         }
     }
-
-    // test with argv
-
-    // if (uploadMode) {
-    //     console.log("bonjour je suis dans le argv")
-    //     uploadMode = "MAP_STORAGE"
-    //     console.log(uploadMode)
-    // } else {
-    //     console.log(uploadMode)
-    //     console.log("AU REVOIR")
-    // }
-
-    // if (uploadMode !== (await argv).uploadMode || uploadMode !== process.env.UPLOAD_MODE) {
-    //     console.log("BONJOUR")
-    //     console.log(uploadMode)
-    // } else {
-    //     console.log(uploadMode)
-    //     console.log("AU REVOIR")
-    // }
-
 
     if (process.env.UPLOAD_MODE) {
         uploadMode = process.env.UPLOAD_MODE;
@@ -234,12 +209,7 @@ async function askQuestions() {
 }
 
 // Upload function with axios
-async function uploadMap(
-    mapStorageApiKey: string,
-    mapStorageUrl: string,
-    directory: string | null = null,
-    uploadMode: string,
-) {
+async function uploadMap(mapStorageApiKey: string, mapStorageUrl: string, directory: string, uploadMode: string) {
     console.log("Uploading ...");
     await axios.post(
         mapStorageUrl,
@@ -256,9 +226,7 @@ async function uploadMap(
         },
     );
 
-    setTimeout(() => {
-        console.log("Upload done successfully");
-    }, 2000);
+    console.log("Upload done successfully");
 
     if (!fs.existsSync(".env")) {
         console.log("Creating .env file...");
@@ -291,31 +259,23 @@ function createEnvsFiles(mapStorageApiKey: string, mapStorageUrl: string, direct
 
 // Fonction for upload
 async function main() {
-    try {
-        // Create zip file
-        const sourceDirectory = "dist";
-        const finalDirectory = "dist.zip";
-        await createZipDirectory(sourceDirectory, finalDirectory);
-        console.log("Directory has been zipped");
-        console.log("------------------------------------");
+    // Create zip file
+    const sourceDirectory = "dist";
+    const finalDirectory = "dist.zip";
+    await createZipDirectory(sourceDirectory, finalDirectory);
+    console.log("Directory has been zipped");
+    console.log("------------------------------------");
 
-        // Ask user input
-        const { mapStorageApiKey, directory, mapStorageUrl, uploadMode } = await askQuestions();
+    // Ask user input
+    const { mapStorageApiKey, directory, mapStorageUrl, uploadMode } = await askQuestions();
 
-        // Send upload
-        if (
-            (mapStorageApiKey && mapStorageUrl && uploadMode) ||
-            (process.env.URL_MAPSTORAGE && process.env.API_KEY && process.env.UPLOAD_MODE)
-        ) {
-            if (directory) {
-                await uploadMap(mapStorageApiKey, mapStorageUrl, directory, uploadMode);
-            } else {
-                await uploadMap(mapStorageApiKey, mapStorageUrl, null, uploadMode);
-            }
-        }
-    } catch (err) {
-        console.error("ERROR :", err);
+    // Envoyer l'upload
+    if (
+        (mapStorageApiKey && mapStorageUrl && uploadMode) ||
+        (process.env.URL_MAPSTORAGE && process.env.API_KEY && process.env.UPLOAD_MODE)
+    ) {
+        await uploadMap(mapStorageApiKey, mapStorageUrl, directory ?? "", uploadMode);
     }
 }
 
-main();
+main().catch((err) => console.error(err));
