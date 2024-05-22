@@ -7,9 +7,9 @@
     "scripts": {
         "build": "tsc",
         "upload": "npm run build && node dist/upload.js",
-        "lint": "eslint . --ext .ts",
-        "pretty": "prettier --write .",
-        "pretty-check": "prettier --check ."
+        "lint": "eslint ./src --ext .ts",
+        "pretty": "prettier --write ./src",
+        "pretty-check": "prettier --check ./src"
     },
     "repository": {
         "type": "git",

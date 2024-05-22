@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
-import * as fs from 'fs';
-import archiver = require('archiver');
-import * as dotenv from 'dotenv';
-import promptSync = require('prompt-sync');
-import axios, {isAxiosError} from 'axios';
+import * as fs from "fs";
+import archiver = require("archiver");
+import * as dotenv from "dotenv";
+import promptSync = require("prompt-sync");
+import axios, { isAxiosError } from "axios";
 
 const prompt = promptSync();
 dotenv.config();
@@ -24,26 +24,31 @@ async function createZipDirectory(sourceDir: string, outPath: fs.PathLike) {
             .pipe(stream);
 
         stream.on("close", () => resolve());
-        archive.finalize();
+        archive.finalize().catch(e => console.error(e));
     });
 }
 
 // Fonction pour vérifier l'URL du map storage
 async function checkMapStorageUrl(mapStorageUrl: string): Promise<boolean> {
-    if (mapStorageUrl !== '/upload' && mapStorageUrl !== undefined && mapStorageUrl !== ' /upload' && mapStorageUrl !== null) {
+    if (
+        mapStorageUrl !== "/upload" &&
+        mapStorageUrl !== undefined &&
+        mapStorageUrl !== " /upload" &&
+        mapStorageUrl !== null
+    ) {
         try {
-            let testUrl = `${mapStorageUrl.replace('/upload', '/ping')}`;
+            const testUrl = `${mapStorageUrl.replace("/upload", "/ping")}`;
             const response = await axios.get(`${testUrl}`);
-            console.log('Your map storage URL is :', mapStorageUrl);
+            console.log("Your map storage URL is :", mapStorageUrl);
             return response.status === 200;
         } catch (err) {
-            console.log(err)
+            console.log(err);
             if (isAxiosError(err) && err.response?.status === 401) {
-                console.log('Invalid URL. Please provide a valid URL.');
+                console.log("Invalid URL. Please provide a valid URL.");
             } else if (isAxiosError(err) && err.response?.status === 403) {
-                console.log('Forbidden access. Please provide a valid API Key.');
+                console.log("Forbidden access. Please provide a valid API Key.");
             } else if (isAxiosError(err) && err.response?.status === 404) {
-                console.log('Invalid URL. Please provide a valid URL.');
+                console.log("Invalid URL. Please provide a valid URL.");
             } else {
                 console.log("An error occurred while checking the URL. Please provide a valid URL.");
             }
@@ -62,10 +67,10 @@ async function askQuestions() {
         "https://github.com/workadventure/workadventure/blob/develop/map-storage/README.md";
     const linkForMapStorageInfo = "https://docs.workadventu.re/map-building/tiled-editor/";
 
-    let mapStorageApiKey : string = "";
+    let mapStorageApiKey = "";
     let uploadMode;
     let mapStorageUrl;
-    let directory;
+    let directory = "";
 
     if (process.env.MAP_STORAGE_URL) {
         mapStorageUrl = process.env.MAP_STORAGE_URL;
@@ -75,17 +80,17 @@ async function askQuestions() {
             `Now let's set up your map storage URL. If you don't know you can see more details to find it here : ${linkForMapStorageDocumentation}\nand here ${linkForMapStorageInfo} !`,
         );
         console.log("------------------------------------");
-        while (!mapStorageUrl || mapStorageUrl === undefined || mapStorageUrl === '' || mapStorageUrl === ' ') {
+        while (!mapStorageUrl || mapStorageUrl === undefined || mapStorageUrl === "" || mapStorageUrl === " ") {
             mapStorageUrl = prompt(`Please enter your URL : `);
             mapStorageUrl = mapStorageUrl.concat("/upload");
-            console.log('A URL is required to upload your map');
-            console.log('-------------------------------------');
-            if (mapStorageUrl && mapStorageUrl !== ' ' && mapStorageUrl !== undefined) {;
+            console.log("A URL is required to upload your map");
+            console.log("-------------------------------------");
+            if (mapStorageUrl && mapStorageUrl !== " " && mapStorageUrl !== undefined) {
                 if (await checkMapStorageUrl(mapStorageUrl)) {
-                    console.log('Map storage URL is valid.');
+                    console.log("Map storage URL is valid.");
                 } else {
                     console.log("------------------------------------");
-                    mapStorageUrl = '';
+                    mapStorageUrl = "";
                 }
             }
         }
@@ -127,7 +132,7 @@ async function askQuestions() {
             console.log("------------------------------------");
         } else {
             console.log("NO DIRECTORY");
-            directory = undefined;
+            directory = "";
         }
     }
 
@@ -144,12 +149,7 @@ async function askQuestions() {
 }
 
 // Upload function with axios
-async function uploadMap(
-    mapStorageApiKey: string,
-    mapStorageUrl: string,
-    directory: string | null = null,
-    uploadMode: string,
-) {
+async function uploadMap(mapStorageApiKey: string, mapStorageUrl: string, directory: string, uploadMode: string) {
     console.log("Uploading ...");
     await axios.post(
         mapStorageUrl,
@@ -166,9 +166,7 @@ async function uploadMap(
         },
     );
 
-    setTimeout(() => {
-        console.log("Upload done successfully");
-    }, 2000);
+    console.log("Upload done successfully");
 
     if (!fs.existsSync(".env")) {
         console.log("Creating .env file...");
@@ -201,7 +199,6 @@ function createEnvsFiles(mapStorageApiKey: string, mapStorageUrl: string, direct
 
 // Fonction for upload
 async function main() {
-    try {
         // Create zip file
         const sourceDirectory = "dist";
         const finalDirectory = "dist.zip";
@@ -213,12 +210,13 @@ async function main() {
         const { mapStorageApiKey, directory, mapStorageUrl, uploadMode } = await askQuestions();
 
         // Envoyer l'upload
-        if (apiKey && mapStorageUrl && uploadMode || process.env.URL_MAPSTORAGE && process.env.API_KEY && process.env.UPLOAD_MODE) {
-            await uploadMap(apiKey, mapStorageUrl, directory ?? "", uploadMode);
+        if (
+            (mapStorageApiKey && mapStorageUrl && uploadMode) ||
+            (process.env.URL_MAPSTORAGE && process.env.API_KEY && process.env.UPLOAD_MODE)
+        ) {
+            await uploadMap(mapStorageApiKey, mapStorageUrl, directory ?? "", uploadMode);
         }
-    } catch (err) {
-        console.error("ERROR :", err);
-    }
+
 }
 
-main();
+main().catch(err => console.error(err));
