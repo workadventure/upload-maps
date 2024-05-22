@@ -1,14 +1,15 @@
 {
     "name": "@workadventure/upload-maps",
+    "type": "module",
     "version": "1.4.4",
     "description": "It is a package for uploading map in self hosted version.",
     "main": "upload.js",
     "scripts": {
         "build": "tsc",
         "upload": "npm run build && node dist/upload.js",
-        "lint": "eslint . --ext .ts",
-        "pretty": "prettier --write .",
-        "pretty-check": "prettier --check ."
+        "lint": "eslint ./src --ext .ts",
+        "pretty": "prettier --write ./src",
+        "pretty-check": "prettier --check ./src"
     },
     "repository": {
         "type": "git",
@@ -33,7 +34,8 @@
     "devDependencies": {
         "@eslint/compat": "^1.0.1",
         "@eslint/js": "^9.3.0",
-        "@types/node": "^20.12.7",
+        "@total-typescript/tsconfig": "^1.0.4",
+        "@types/node": "^20.12.12",
         "@typescript-eslint/eslint-plugin": "^5.62.0",
         "@typescript-eslint/parser": "^5.62.0",
         "eslint": "^8.56.0",
