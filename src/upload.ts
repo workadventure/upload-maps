@@ -32,7 +32,12 @@ async function createZipDirectory(sourceDir: string, outPath: fs.PathLike) {
 
 // Function to check the URL of the map storage
 async function checkMapStorageUrl(mapStorageUrl: string): Promise<boolean> {
-    if (mapStorageUrl !== "/upload" && mapStorageUrl !== undefined && mapStorageUrl !== " /upload" && mapStorageUrl !== null) {
+    if (
+        mapStorageUrl !== "/upload" &&
+        mapStorageUrl !== undefined &&
+        mapStorageUrl !== " /upload" &&
+        mapStorageUrl !== null
+    ) {
         try {
             const testUrl = `${mapStorageUrl.replace("/upload", "/ping")}`;
             const response = await axios.get(`${testUrl}`);
@@ -62,17 +67,18 @@ async function checkMapStorageUrl(mapStorageUrl: string): Promise<boolean> {
 
 // Ask input for users
 async function askQuestions(options: OptionValues) {
-    const linkForMapStorageDocumentation = "https://github.com/workadventure/workadventure/blob/develop/map-storage/README.md";
+    const linkForMapStorageDocumentation =
+        "https://github.com/workadventure/workadventure/blob/develop/map-storage/README.md";
     const linkForMapStorageInfo = "https://docs.workadventu.re/map-building/tiled-editor/";
 
-    let mapStorageApiKey = options.apiKey as string|| process.env.API_KEY || "";
-    let uploadMode = options.uploadMode as string || process.env.UPLOAD_MODE || "MAP_STORAGE";
-    let mapStorageUrl = options.mapStorageUrl as string || process.env.MAP_STORAGE_URL || "";
-    let directory = options.directory as string || process.env.DIRECTORY || "";
+    let mapStorageApiKey = (options.apiKey as string) || process.env.API_KEY || "";
+    let uploadMode = (options.uploadMode as string) || process.env.UPLOAD_MODE || "MAP_STORAGE";
+    let mapStorageUrl = (options.mapStorageUrl as string) || process.env.MAP_STORAGE_URL || "";
+    let directory = (options.directory as string) || process.env.DIRECTORY || "";
 
     if (!mapStorageUrl) {
         console.log(
-            `Now let's set up your map storage URL. If you don't know, you can see more details here: ${linkForMapStorageDocumentation}\nand here: ${linkForMapStorageInfo}!`
+            `Now let's set up your map storage URL. If you don't know, you can see more details here: ${linkForMapStorageDocumentation}\nand here: ${linkForMapStorageInfo}!`,
         );
         console.log("------------------------------------");
         while (!mapStorageUrl) {
@@ -90,9 +96,9 @@ async function askQuestions(options: OptionValues) {
             }
         }
     } else {
-        mapStorageUrl = mapStorageUrl.concat("/upload")
+        mapStorageUrl = mapStorageUrl.concat("/upload");
         console.log("URL Map Storage found, you're good to go!");
-        variableEnv = true
+        variableEnv = true;
     }
     console.log("------------------------------------");
 
@@ -106,7 +112,7 @@ async function askQuestions(options: OptionValues) {
             }
         }
     } else {
-        variableEnv = true
+        variableEnv = true;
         console.log("API Key found, you're good to go!");
     }
 
@@ -114,7 +120,7 @@ async function askQuestions(options: OptionValues) {
         console.log("------------------------------------");
         directory = prompt("Name of directory? (optional): ");
         if (directory) {
-            variableEnv = true
+            variableEnv = true;
             console.log("Your map will be in the directory:", directory);
             console.log("------------------------------------");
         } else {
@@ -127,12 +133,12 @@ async function askQuestions(options: OptionValues) {
     }
 
     if (!uploadMode) {
-        variableEnv = true
+        variableEnv = true;
         uploadMode = "MAP_STORAGE";
         console.log("Default upload mode is:", uploadMode);
         console.log("------------------------------------");
     } else {
-        variableEnv = true
+        variableEnv = true;
         console.log("Your upload mode is:", uploadMode);
         console.log("------------------------------------");
     }
@@ -142,7 +148,7 @@ async function askQuestions(options: OptionValues) {
 
 // Upload function with axios
 async function uploadMap(mapStorageApiKey: string, mapStorageUrl: string, directory: string, uploadMode: string) {
-    console.log(mapStorageUrl)
+    console.log(mapStorageUrl);
     console.log("Uploading...");
     await axios.post(
         mapStorageUrl,
@@ -156,7 +162,7 @@ async function uploadMap(mapStorageApiKey: string, mapStorageUrl: string, direct
                 Authorization: `Bearer ${mapStorageApiKey}`,
                 "Content-Type": "multipart/form-data",
             },
-        }
+        },
     );
 
     console.log("Upload done successfully");
@@ -176,7 +182,7 @@ function createEnvsFiles(mapStorageApiKey: string, mapStorageUrl: string, direct
     if (!fs.existsSync(".env") || fs.readFileSync(".env").length === 0 || variableEnv) {
         fs.writeFileSync(
             ".env",
-            `LOG_LEVEL=1\nTILESET_OPTIMIZATION=false\nTILESET_OPTIMIZATION_QUALITY_MIN=0.9\nTILESET_OPTIMIZATION_QUALITY_MAX=1.0\nMAP_STORAGE_URL=${mapStorageUrl}\nDIRECTORY=${directory}\nUPLOAD_MODE=${uploadMode}`
+            `LOG_LEVEL=1\nTILESET_OPTIMIZATION=false\nTILESET_OPTIMIZATION_QUALITY_MIN=0.9\nTILESET_OPTIMIZATION_QUALITY_MAX=1.0\nMAP_STORAGE_URL=${mapStorageUrl}\nDIRECTORY=${directory}\nUPLOAD_MODE=${uploadMode}`,
         );
         console.log("Env files created successfully");
         if (process.env.API_KEY) {
@@ -193,10 +199,10 @@ function createEnvsFiles(mapStorageApiKey: string, mapStorageUrl: string, direct
 // Main function
 async function main() {
     program
-        .option('-k, --apiKey <apiKey>', 'API Key for the script')
-        .option('-d, --directory <directory>', 'Directory for the script')
-        .option('-u, --uploadMode <uploadMode>', 'Upload mode for the script')
-        .option('-m, --mapStorageUrl <mapStorageUrl>', 'Map Storage URL for the script')
+        .option("-k, --apiKey <apiKey>", "API Key for the script")
+        .option("-d, --directory <directory>", "Directory for the script")
+        .option("-u, --uploadMode <uploadMode>", "Upload mode for the script")
+        .option("-m, --mapStorageUrl <mapStorageUrl>", "Map Storage URL for the script")
         .parse(process.argv);
 
     const options = program.opts();
