@@ -12,7 +12,6 @@ const program = new Command();
 const prompt = promptSync();
 dotenv.config();
 
-let apiKeyFilledInUpload = false;
 let variableEnv = false;
 
 // Function to create the zip folder
@@ -66,10 +65,10 @@ async function askQuestions(options: OptionValues) {
     const linkForMapStorageDocumentation = "https://github.com/workadventure/workadventure/blob/develop/map-storage/README.md";
     const linkForMapStorageInfo = "https://docs.workadventu.re/map-building/tiled-editor/";
 
-    let mapStorageApiKey = options.apiKey || process.env.API_KEY || "";
-    let uploadMode = options.uploadMode || process.env.UPLOAD_MODE || "MAP_STORAGE";
-    let mapStorageUrl = options.mapStorageUrl || process.env.MAP_STORAGE_URL || "";
-    let directory = options.directory || process.env.DIRECTORY || "";
+    let mapStorageApiKey = options.apiKey as string|| process.env.API_KEY || "";
+    let uploadMode = options.uploadMode as string || process.env.UPLOAD_MODE || "MAP_STORAGE";
+    let mapStorageUrl = options.mapStorageUrl as string || process.env.MAP_STORAGE_URL || "";
+    let directory = options.directory as string || process.env.DIRECTORY || "";
 
     if (!mapStorageUrl) {
         console.log(
@@ -167,7 +166,7 @@ async function uploadMap(mapStorageApiKey: string, mapStorageUrl: string, direct
         createEnvsFiles(mapStorageApiKey, mapStorageUrl, directory, uploadMode);
     }
 
-    if (apiKeyFilledInUpload || variableEnv) {
+    if (variableEnv) {
         createEnvsFiles(mapStorageApiKey, mapStorageUrl, directory, uploadMode);
     }
 }
