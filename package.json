@@ -26,6 +26,7 @@
         "@workadventure/iframe-api-typings": "^1.17.1",
         "archiver": "^7.0.1",
         "axios": "^1.6.8",
+        "commander": "^12.1.0",
         "dotenv": "^16.4.5",
         "prompt-sync": "^4.2.0"
     },
