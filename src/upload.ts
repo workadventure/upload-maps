@@ -12,7 +12,6 @@ const program = new Command();
 
 const prompt = promptSync();
 
-
 const linkForMapStorageInfo = "https://admin.workadventu.re/login";
 
 function shouldRunInit(config: Config) {
