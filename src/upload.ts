@@ -12,9 +12,8 @@ const program = new Command();
 
 const prompt = promptSync();
 
-const linkForMapStorageDocumentation =
-    "https://github.com/workadventure/workadventure/blob/develop/map-storage/README.md";
-const linkForMapStorageInfo = "https://docs.workadventu.re/map-building/tiled-editor/";
+
+const linkForMapStorageInfo = "https://admin.workadventu.re/login";
 
 function shouldRunInit(config: Config) {
     if (config.mapStorageApiKey && config.directory && config.mapStorageUrl && config.uploadMode) {
@@ -67,7 +66,7 @@ async function checkMapStorageUrl(mapStorageUrl: string): Promise<boolean> {
                     console.log(chalk.red("Invalid URL. Please provide a valid URL.\n"));
                     console.log(
                         chalk.italic(
-                            `You can have more informations on where to find this url here : ${linkForMapStorageDocumentation} and here : ${linkForMapStorageInfo}\n`,
+                            `You can have more informations on where to find this url here : ${linkForMapStorageInfo}\n`,
                         ),
                     );
                     console.log("------------------------------------\n");
@@ -121,7 +120,7 @@ async function askQuestions(): Promise<Config> {
     console.log(chalk.blue(`\nNow let's set up the environnement variables.\n`));
     console.log(
         chalk.blue(
-            `If you don't know how to find your map storage URL, you can see more details here: ${linkForMapStorageDocumentation}\nand here: ${linkForMapStorageInfo}!\n`,
+            `If you don't know how to find your map storage URL, you can see more details in your admin account: ${linkForMapStorageInfo} !\n`,
         ),
     );
     console.log("------------------------------------\n");
