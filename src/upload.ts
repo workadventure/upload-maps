@@ -95,9 +95,9 @@ async function askQuestions(): Promise<Config> {
     console.log(" 1. First your map files are going to be build\n");
     console.log(" 2. The scripts of your map are compiled and bundled\n");
     console.log(" 3. The result of the built is written in the dist directory\n");
-    console.log(" 3. The content of the public directory is copied to the dist directory.\n");
+    console.log(" 4. The content of the public directory is copied to the dist directory.\n");
     console.log(
-        " 3. Then, a ZIP file of the dist directory is created and sent to the WorkAdventure 'map-storage' server.\n",
+        " 5. Then, a ZIP file of the dist directory is created and sent to the WorkAdventure 'map-storage' server.\n",
     );
     console.log(
         chalk.yellow(
