@@ -15,19 +15,7 @@ const prompt = promptSync();
 const linkForMapStorageInfo = "https://admin.workadventu.re/login";
 
 function shouldRunInit(config: Config) {
-    if (config.mapStorageApiKey && config.directory && config.mapStorageUrl && config.uploadMode) {
-        console.log(chalk.green("All the required fields are filled in. You can now upload your map.\n"));
-        console.log(
-            chalk.yellow(
-                "Take care if you're using flags, varibles will not be saved for the next time in env files\n",
-            ),
-        );
-        console.log("------------------------------------");
-        return false;
-    } else if (config.mapStorageApiKey || config.directory || config.mapStorageUrl) {
-        return false;
-    }
-    return true;
+    return !(config.mapStorageApiKey || config.directory || config.mapStorageUrl);
 }
 
 // Function to create the zip folder
@@ -61,24 +49,26 @@ async function checkMapStorageUrl(mapStorageUrl: string): Promise<boolean> {
         } catch (err) {
             if (isAxiosError(err)) {
                 const status = err.response?.status;
-                if (status === 401) {
-                    console.log(chalk.red("Invalid URL. Please provide a valid URL.\n"));
+                if (status === 403) {
+                    console.log(chalk.red("Forbidden access. Please provide a valid API Key.\n"));
                     console.log(
                         chalk.italic(
-                            `You can have more informations on where to find this url here : ${linkForMapStorageInfo}\n`,
+                            `You can find more information on where to find this API Key here : ${linkForMapStorageInfo}\n`,
                         ),
                     );
                     console.log("------------------------------------\n");
-                } else if (status === 403) {
-                    console.log(chalk.red("Forbidden access. Please provide a valid API Key.\n"));
-                    console.log("------------------------------------\n");
-                } else if (status === 404) {
-                    console.log(chalk.red("Invalid URL. Please provide a valid URL.\n"));
-                    console.log("------------------------------------\n");
                 } else {
-                    console.log(chalk.red("An error occurred while checking the URL. Please provide a valid URL.\n"));
-                    console.log("------------------------------------\n");
-                }
+                    console.log(chalk.red("Invalid URL. Please provide a valid URL.\n"));
+                    console.log(chalk.red("Error: ${err.message}\n"));
+                    console.log(
+                        chalk.italic(
+                            `You can find more information on where to find this URL here : ${linkForMapStorageInfo}\n`,
+                        ),
+                    );
+               }
+            } else {
+                  console.log(chalk.red("Invalid URL. Please provide a valid URL.\n"));
+                  console.log(chalk.red("Error: ${err}\n"));
             }
             return false;
         }
@@ -93,7 +83,7 @@ async function askQuestions(): Promise<Config> {
     console.log("------------------------------------");
     console.log(
         chalk.green(
-            "\nLooks like this is your first time uploading a map ! Please finish the script by filling in the fields correctly.\n",
+            "\nLooks like this is your first time uploading a map! Let's configure the map upload.\n",
         ),
     );
     console.log(
@@ -111,12 +101,12 @@ async function askQuestions(): Promise<Config> {
     );
     console.log(
         chalk.yellow(
-            " !!! Be careful, the WorkAdventure server does not store the files. You cannot get it back from there, so make sure to keep the original files, and if you want to modify the map just run again the command 'npm run upload'\n",
+            " !!! Caution, the WorkAdventure server only stores the built files (from the \"dist\" directory). You cannot get back your original source files from the WorkAdventure server, so make sure to keep these original files in a safe place. If you want to modify the map just modify the source files and run the command 'npm run upload' again.\n",
         ),
     );
     console.log("------------------------------------");
 
-    console.log(chalk.blue(`\nNow let's set up the environnement variables.\n`));
+    console.log(chalk.blue(`\nNow let's set up the configuration.\n`));
     console.log(
         chalk.blue(
             `If you don't know how to find your map storage URL, you can see more details in your admin account: ${linkForMapStorageInfo} !\n`,
@@ -196,6 +186,7 @@ function createEnvsFiles(config: Config) {
     );
     fs.writeFileSync(".env.secret", `MAP_STORAGE_API_KEY=${config.mapStorageApiKey}`);
     console.log(chalk.green("Env files created successfully\n"));
+    console.log(chalk.green("In the future, if you need to change the URL or the API Key, you can now directly edit the .env and .env.secret files.\n"));
 }
 
 interface Config {
@@ -261,4 +252,4 @@ async function main() {
     }
 }
 
-main().catch((err) => console.error(err)); // console les erreurs possibles de la requetes axios
+main().catch((err) => console.error(err));
