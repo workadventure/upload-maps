@@ -65,10 +65,10 @@ async function checkMapStorageUrl(mapStorageUrl: string): Promise<boolean> {
                             `You can find more information on where to find this URL here : ${linkForMapStorageInfo}\n`,
                         ),
                     );
-               }
+                }
             } else {
-                  console.log(chalk.red("Invalid URL. Please provide a valid URL.\n"));
-                  console.log(chalk.red("Error: ${err}\n"));
+                console.log(chalk.red("Invalid URL. Please provide a valid URL.\n"));
+                console.log(chalk.red("Error: ${err}\n"));
             }
             return false;
         }
@@ -81,11 +81,7 @@ async function checkMapStorageUrl(mapStorageUrl: string): Promise<boolean> {
 // Ask input for users
 async function askQuestions(): Promise<Config> {
     console.log("------------------------------------");
-    console.log(
-        chalk.green(
-            "\nLooks like this is your first time uploading a map! Let's configure the map upload.\n",
-        ),
-    );
+    console.log(chalk.green("\nLooks like this is your first time uploading a map! Let's configure the map upload.\n"));
     console.log(
         chalk.bold(
             "Running this command will ask you different parameters, the URL where you're going to upload your map, the directory (optional) of your map and the API key.\n",
@@ -186,7 +182,11 @@ function createEnvsFiles(config: Config) {
     );
     fs.writeFileSync(".env.secret", `MAP_STORAGE_API_KEY=${config.mapStorageApiKey}`);
     console.log(chalk.green("Env files created successfully\n"));
-    console.log(chalk.green("In the future, if you need to change the URL or the API Key, you can now directly edit the .env and .env.secret files.\n"));
+    console.log(
+        chalk.green(
+            "In the future, if you need to change the URL or the API Key, you can now directly edit the .env and .env.secret files.\n",
+        ),
+    );
 }
 
 interface Config {
