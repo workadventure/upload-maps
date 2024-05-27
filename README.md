@@ -55,4 +55,8 @@ When you run the npm run upload command, the following things happen:
 5. The content of the public directory is copied to the dist directory.
 6. Then, a ZIP file of the dist directory is created and sent to the WorkAdventure "map-storage" server. This server is in charge of hosting the map files. When it receives the ZIP file, it unzips it and stores the files in the directory you configured when you first ran the npm run upload command. For each tmj file the server finds, it will check if there exists a matching wam file. If not, it will create one. wam files are used to store any part of the map edited in the inline map editor of WorkAdventure (like the list of objects or areas, the microphone settings, etc...)
 
+WARNING :
+
+If you're uploading on WorkAdventure server, it only stores the "build" you send to it. It does not store the original files you used to create the map. If you want to update your map, you need to update the original files on your computer and run the npm run upload command again. Do not think you can get back the original files from the WorkAdventure server, because it stores only the "build". It is your responsibility to store the original map files in a safe place in case you want to modify those.
+
 If you have any questions or need further assistance, don't hesitate to ask ! (hello@workadventu.re) or you can check the documentation of WorkAdventure just here : https://docs.workadventu.re/
