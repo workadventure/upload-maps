@@ -12,13 +12,11 @@ To install this package, use the following command:
 
 UPLOAD YOUR MAPS ON MAP-STORAGE
 
-This document will guide you through the process of uploading your own map on the map storage.
+This document will guide you through the process of uploading your own map on the map storage. You can also go to the documentation of WorkAdventure just by clicking here : https://docs.workadventu.re/
 
 To use this package, import it into your project and run the command in your terminal:
 
 > node_modules/.bin/upload-wa-map
-
-!! Before you run the script you need to install the dependencies (....) !!
 
 It will ask you some questions:
 
@@ -36,12 +34,25 @@ It will ask you some questions:
    You can also add a directory name if you want. If you leave this blank, the default name will be map-user.
    It will be the folder where all your uploaded files will be stored in.
 
-After answering these question, the script will start to upload your file. You need to see something like this : Upload done successfully
+You can also use it with flags to upload your map but keep in mind that the secret variables will not be saved in .env and .env.secret files. This are the differents flags :
 
-To complete the upload, you need to set your secrets variables in your github repository. You need to set the URL of your map storage and your API Key.
+    -k for the map storage API KEY
+    -u for the map storage URL
+    -d for the directory
 
-https://scribehow.com/shared/Set_up_secrets_for_in_your_repository__FKsqAsrVQ_SzDavSudb19Q
+Here is how you can use flags :
 
-> When your done you can just commit and push your changes and it's done !
+> npm run upload -- -k your-api-key -u your-mapstorage-url -d your-directory
 
-If you have any questions or need further assistance, don't hesitate to ask ! (hello@workadventu.re)
+After answering these question, the script will start to upload your file. You need to see something like this : Upload done successfully !
+
+When you run the npm run upload command, the following things happen:
+
+1. First, your map files are "built". During the build phase:
+2. The tilesets of your map are optimized. Any tile that is not used is removed. This is done to reduce the total size of the map and results in faster loading times.
+3. The scripts of your map are compiled and bundled. This happens if you developed some specific features on your map using the Scripting API. The compilation phase translates files from Typescript to Javascript. The bundling phase takes all the Javascript files and merges them into a single file.
+4. The result of the built is written in the dist directory.
+5. The content of the public directory is copied to the dist directory.
+6. Then, a ZIP file of the dist directory is created and sent to the WorkAdventure "map-storage" server. This server is in charge of hosting the map files. When it receives the ZIP file, it unzips it and stores the files in the directory you configured when you first ran the npm run upload command. For each tmj file the server finds, it will check if there exists a matching wam file. If not, it will create one. wam files are used to store any part of the map edited in the inline map editor of WorkAdventure (like the list of objects or areas, the microphone settings, etc...)
+
+If you have any questions or need further assistance, don't hesitate to ask ! (hello@workadventu.re) or you can check the documentation of WorkAdventure just here : https://docs.workadventu.re/
