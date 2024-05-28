@@ -68,7 +68,9 @@ async function checkMapStorageUrl(mapStorageUrl: string): Promise<boolean> {
                 }
             } else {
                 console.log(chalk.red("Invalid URL. Please provide a valid URL.\n"));
-                console.log(chalk.red(`Error: ${err}\n`));
+                if (err instanceof Error) {
+                    console.log(chalk.red(`Error: ${err.message}\n`));
+                }
             }
             return false;
         }
