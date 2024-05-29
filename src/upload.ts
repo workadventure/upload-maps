@@ -144,7 +144,7 @@ async function askQuestions(): Promise<Config> {
         console.log("\n------------------------------------");
     }
 
-    return { mapStorageApiKey, directory, mapStorageUrl, uploadMode: "MAP_STORAGE"};
+    return { mapStorageApiKey, directory, mapStorageUrl, uploadMode: "MAP_STORAGE" };
 }
 
 // Upload function with axios
