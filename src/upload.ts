@@ -204,7 +204,6 @@ async function main() {
         .option("-k, --mapStorageApiKey <mapStorageApiKey>", "API Key for the map storage")
         .option("-u, --mapStorageUrl <mapStorageUrl>", "URL for the map storage")
         .option("-d, --directory <directory>", "Directory for the map storage")
-        .option("-m, --uploadMode <uploadMode>", "Upload mode for the map storage")
         .parse(process.argv);
 
     const options = program.opts();
