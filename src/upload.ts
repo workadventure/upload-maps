@@ -69,7 +69,7 @@ async function checkMapStorageUrl(mapStorageUrl: string): Promise<boolean> {
             } else {
                 console.log(chalk.red("Invalid URL. Please provide a valid URL.\n"));
                 if (err instanceof Error) {
-                    console.log(chalk.red(`Error: ${err.message}\n !`));
+                    console.log(chalk.red(`Error: ${err.message}\n`));
                 }
             }
             return false;
@@ -116,7 +116,7 @@ async function askQuestions(): Promise<Config> {
         mapStorageUrl = prompt(chalk.bold(`Please enter your map storage URL: `));
         if (mapStorageUrl) {
             if (await checkMapStorageUrl(mapStorageUrl)) {
-                console.log(chalk.green("Map storage URL is valid."));
+                console.log(chalk.green("Your map storage URL is valid."));
             } else {
                 mapStorageUrl = "";
             }
@@ -204,7 +204,6 @@ async function main() {
         .option("-k, --mapStorageApiKey <mapStorageApiKey>", "API Key for the map storage")
         .option("-u, --mapStorageUrl <mapStorageUrl>", "URL for the map storage")
         .option("-d, --directory <directory>", "Directory for the map storage")
-        .option("-m, --uploadMode <uploadMode>", "Upload mode for the map storage")
         .parse(process.argv);
 
     const options = program.opts();
