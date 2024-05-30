@@ -220,17 +220,20 @@ async function main() {
 
     let shouldWriteEnvFile = false;
     if (shouldRunInit(config)) {
-        config = await askQuestions();
+        if (process.stdout.isTTY) {
+            config = await askQuestions();
+        }
         shouldWriteEnvFile = true;
     }
 
+    let stopOnError = false;
     if (!config.mapStorageUrl) {
         console.error(
             chalk.red(
                 "Could not find the map-storage URL. Please provide it using the --mapStorageUrl option in the command line or configure the MAP_STORAGE_URL environment variable.",
             ),
         );
-        process.exit(1);
+        stopOnError = true;
     }
     if (!config.mapStorageApiKey) {
         console.error(
@@ -238,6 +241,9 @@ async function main() {
                 "Could not find the map-storage API key. Please provide it using the --apiKey option in the command line or use the MAP_STORAGE_API_KEY environment variable.",
             ),
         );
+        stopOnError = true;
+    }
+    if (stopOnError) {
         process.exit(1);
     }
 
