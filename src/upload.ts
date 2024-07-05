@@ -88,7 +88,7 @@ async function askQuestions(): Promise<Config> {
     console.log(
         chalk.bold(
             "Running this command will ask you different parameters, the URL where you're going to upload your map, the directory of your map and the API key.",
-            "If you don't fill in a dorectory, by default it will be 'maps'. If you really want to put your files in at the root of the project you can just enter '/'"
+            "If you don't fill in a dorectory, by default it will be 'maps'. If you really want to put your files in at the root of the project you can just enter '/'.",
         ),
     );
     console.log(chalk.yellow("Be careful if you upload with '/' directory, it will delete all the other WAM files.\n"));
