@@ -60,6 +60,7 @@ async function checkMapStorageUrl(mapStorageUrl: string): Promise<boolean> {
                 } else {
                     console.log(chalk.red("Invalid URL. Please provide a valid URL.\n"));
                     console.log(chalk.red(`Error: ${err.message}\n`));
+                    console.log(chalk.red(`Error: ${err.message}\n`));
                     console.log(
                         chalk.italic(
                             `You can find more information on where to find this URL here : ${linkForMapStorageInfo}\n`,
@@ -86,9 +87,11 @@ async function askQuestions(): Promise<Config> {
     console.log(chalk.green("\nLooks like this is your first time uploading a map! Let's configure the map upload.\n"));
     console.log(
         chalk.bold(
-            "Running this command will ask you different parameters, the URL where you're going to upload your map, the directory (optional) of your map and the API key.\n",
+            "Running this command will ask you different parameters, the URL where you're going to upload your map, the directory of your map and the API key.",
+            "If you don't fill in a dorectory, by default it will be 'maps'. If you really want to put your files in at the root of the project you can just enter '/'"
         ),
     );
+    console.log(chalk.yellow("Be careful if you upload with '/' directory, it will delete all the other WAM files.\n"));
     console.log(chalk.bold("How does it work ?\n"));
     console.log(" 1. First your map files are going to be build\n");
     console.log(" 2. The scripts of your map are compiled and bundled\n");
@@ -135,13 +138,20 @@ async function askQuestions(): Promise<Config> {
         }
     }
 
-    const directory = prompt(chalk.bold("Name of directory? (optional): "));
-    if (directory) {
-        console.log(chalk.green("Your map will be in the directory:", directory));
-        console.log("\n------------------------------------");
-    } else {
-        console.log(chalk.bold("NO DIRECTORY"));
-        console.log("\n------------------------------------");
+    let directory = "";
+    while (!directory) {
+        directory = prompt(chalk.bold("Name of directory ? If you don't put one, by default it will be 'maps': "));
+        if (directory) {
+            console.log(chalk.green("Your map will be in the directory:", directory));
+            console.log("\n------------------------------------");
+        } else if (directory === "/") {
+            directory = "/";
+            console.log(chalk.green("Your map will be in the root directory"));
+        } else {
+            directory = "maps";
+            console.log(chalk.green("Your map will be in the directory: maps"));
+            console.log("\n------------------------------------");
+        }
     }
 
     return { mapStorageApiKey, directory, mapStorageUrl, uploadMode: "MAP_STORAGE" };
@@ -244,6 +254,14 @@ async function main() {
         stopOnError = true;
     }
     if (stopOnError) {
+        process.exit(1);
+    }
+    if (!config.directory) {
+        console.error(
+            chalk.red(
+                "Could not find the directory or directory name is null. Please provide it using the --directory option in the command line or use the DIRECTORY environment variable.",
+            ),
+        );
         process.exit(1);
     }
 
