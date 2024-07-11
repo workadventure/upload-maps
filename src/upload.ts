@@ -264,7 +264,7 @@ async function main() {
         );
         stopOnError = true;
     }
-  
+
     if (!config.mapStorageApiKey) {
         console.error(
             chalk.red(
