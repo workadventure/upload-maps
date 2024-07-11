@@ -7,8 +7,7 @@ import promptSync from "prompt-sync";
 import axios, { isAxiosError } from "axios";
 import { Command } from "commander";
 import chalk from "chalk";
-import { execSync } from 'child_process';
-
+import { execSync } from "child_process";
 
 const program = new Command();
 
@@ -80,15 +79,14 @@ async function checkMapStorageUrl(mapStorageUrl: string): Promise<boolean> {
     }
 }
 
-
 function getGitRepoName() {
     try {
-        const repoName = execSync('basename -s .git `git config --get remote.origin.url`').toString().trim();
+        const repoName = execSync("basename -s .git `git config --get remote.origin.url`").toString().trim();
         if (repoName) {
             console.log(chalk.green(`Name of the Github Repository found : ${repoName}`));
             return repoName;
         } else {
-            throw new Error('Name of the Github Repository not found.');
+            throw new Error("Name of the Github Repository not found.");
         }
     } catch (error: unknown) {
         console.error(chalk.red("Error to find repository name: ", error));
@@ -150,10 +148,10 @@ async function askQuestions(): Promise<Config> {
         }
     }
 
-    let directory = "" as string ;
+    let directory = "" as string;
     const defaultDirectory = getGitRepoName();
 
-    if(defaultDirectory === undefined) {
+    if (defaultDirectory === undefined) {
         while (!directory && !defaultDirectory) {
             directory = prompt(chalk.bold(`Name of directory ? You have to put the name of your repository Github : `));
             if (directory) {
