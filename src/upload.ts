@@ -60,7 +60,7 @@ async function checkMapStorageUrl(mapStorageUrl: string): Promise<boolean> {
                     console.log("------------------------------------\n");
                 } else {
                     console.log(chalk.red("Invalid URL. Please provide a valid URL.\n"));
-                    console.log(chalk.red("Error: ${err.message}\n"));
+                    console.log(chalk.red(`Error: ${err.message}\n`));
                     console.log(
                         chalk.italic(
                             `You can find more information on where to find this URL here : ${linkForMapStorageInfo}\n`,
@@ -69,7 +69,9 @@ async function checkMapStorageUrl(mapStorageUrl: string): Promise<boolean> {
                 }
             } else {
                 console.log(chalk.red("Invalid URL. Please provide a valid URL.\n"));
-                console.log(chalk.red("Error: ${err}\n"));
+                if (err instanceof Error) {
+                    console.log(chalk.red(`Error: ${err.message}\n`));
+                }
             }
             return false;
         }
@@ -99,9 +101,11 @@ async function askQuestions(): Promise<Config> {
     console.log(chalk.green("\nLooks like this is your first time uploading a map! Let's configure the map upload.\n"));
     console.log(
         chalk.bold(
-            "Running this command will ask you different parameters, the URL where you're going to upload your map, the directory (optional) of your map and the API key.\n",
+            "Running this command will ask you different parameters, the URL where you're going to upload your map, the directory of your map and the API key.",
+            "If you don't fill in a dorectory, by default it will be 'maps'. If you really want to put your files in at the root of the project you can just enter '/'.",
         ),
     );
+    console.log(chalk.yellow("Be careful if you upload with '/' directory, it will delete all the other WAM files.\n"));
     console.log(chalk.bold("How does it work ?\n"));
     console.log(" 1. First your map files are going to be build\n");
     console.log(" 2. The scripts of your map are compiled and bundled\n");
@@ -129,7 +133,7 @@ async function askQuestions(): Promise<Config> {
         mapStorageUrl = prompt(chalk.bold(`Please enter your map storage URL: `));
         if (mapStorageUrl) {
             if (await checkMapStorageUrl(mapStorageUrl)) {
-                console.log(chalk.green("Map storage URL is valid."));
+                console.log(chalk.green("Your map storage URL is valid."));
             } else {
                 mapStorageUrl = "";
             }
@@ -228,7 +232,6 @@ async function main() {
         .option("-k, --mapStorageApiKey <mapStorageApiKey>", "API Key for the map storage")
         .option("-u, --mapStorageUrl <mapStorageUrl>", "URL for the map storage")
         .option("-d, --directory <directory>", "Directory for the map storage")
-        .option("-m, --uploadMode <uploadMode>", "Upload mode for the map storage")
         .parse(process.argv);
 
     const options = program.opts();
@@ -245,7 +248,9 @@ async function main() {
 
     let shouldWriteEnvFile = false;
     if (shouldRunInit(config)) {
-        config = await askQuestions();
+        if (process.stdout.isTTY) {
+            config = await askQuestions();
+        }
         shouldWriteEnvFile = true;
     }
 
@@ -259,6 +264,7 @@ async function main() {
         );
         stopOnError = true;
     }
+  
     if (!config.mapStorageApiKey) {
         console.error(
             chalk.red(
@@ -267,6 +273,7 @@ async function main() {
         );
         stopOnError = true;
     }
+
     if (!config.directory) {
         console.error(
             chalk.red(
