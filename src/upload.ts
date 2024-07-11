@@ -7,6 +7,8 @@ import promptSync from "prompt-sync";
 import axios, { isAxiosError } from "axios";
 import { Command } from "commander";
 import chalk from "chalk";
+import { execSync } from 'child_process';
+
 
 const program = new Command();
 
@@ -78,6 +80,21 @@ async function checkMapStorageUrl(mapStorageUrl: string): Promise<boolean> {
     }
 }
 
+
+function getGitRepoName() {
+    try {
+        const repoName = execSync('basename -s .git `git config --get remote.origin.url`').toString().trim();
+        if (repoName) {
+            console.log(chalk.green(`Name of the Github Repository found : ${repoName}`));
+            return repoName;
+        } else {
+            throw new Error('Name of the Github Repository not found.');
+        }
+    } catch (error: unknown) {
+        console.error(chalk.red("Error to find repository name: ", error));
+    }
+}
+
 // Ask input for users
 async function askQuestions(): Promise<Config> {
     console.log("------------------------------------");
@@ -133,14 +150,25 @@ async function askQuestions(): Promise<Config> {
         }
     }
 
-    const directory = prompt(chalk.bold("Name of directory? (optional): "));
-    if (directory) {
-        console.log(chalk.green("Your map will be in the directory:", directory));
-        console.log("\n------------------------------------");
+    let directory = "" as string ;
+    const defaultDirectory = getGitRepoName();
+
+    if(defaultDirectory === undefined) {
+        while (!directory && !defaultDirectory) {
+            directory = prompt(chalk.bold(`Name of directory ? You have to put the name of your repository Github : `));
+            if (directory) {
+                console.log(chalk.green("Your map will be in the directory:", directory));
+                console.log("\n------------------------------------");
+            } else if (directory === "/") {
+                console.log(chalk.green("Your map will be in the root directory"));
+            }
+        }
     } else {
-        console.log(chalk.bold("NO DIRECTORY"));
-        console.log("\n------------------------------------");
+        directory = defaultDirectory;
     }
+
+    console.log(chalk.green("Your map will be in the directory who has the same name of your repository !", directory));
+    console.log("\n------------------------------------");
 
     return { mapStorageApiKey, directory, mapStorageUrl, uploadMode: "MAP_STORAGE" };
 }
@@ -223,13 +251,15 @@ async function main() {
         shouldWriteEnvFile = true;
     }
 
+    let stopOnError = false;
+
     if (!config.mapStorageUrl) {
         console.error(
             chalk.red(
                 "Could not find the map-storage URL. Please provide it using the --mapStorageUrl option in the command line or configure the MAP_STORAGE_URL environment variable.",
             ),
         );
-        process.exit(1);
+        stopOnError = true;
     }
     if (!config.mapStorageApiKey) {
         console.error(
@@ -237,9 +267,20 @@ async function main() {
                 "Could not find the map-storage API key. Please provide it using the --apiKey option in the command line or use the MAP_STORAGE_API_KEY environment variable.",
             ),
         );
-        process.exit(1);
+        stopOnError = true;
+    }
+    if (!config.directory) {
+        console.error(
+            chalk.red(
+                "Could not find the directory or directory name is null. Please provide it using the --directory option in the command line or use the DIRECTORY environment variable.",
+            ),
+        );
+        stopOnError = true;
     }
 
+    if (stopOnError) {
+        process.exit(1);
+    }
     // Create zip file
     const sourceDirectory = "dist";
     const finalDirectory = "dist.zip";
