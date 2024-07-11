@@ -148,7 +148,7 @@ async function askQuestions(): Promise<Config> {
         }
     }
 
-    let directory = "" as string;
+    let directory = "";
     const defaultDirectory = getGitRepoName();
 
     if (defaultDirectory === undefined) {
