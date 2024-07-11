@@ -83,14 +83,24 @@ async function checkMapStorageUrl(mapStorageUrl: string): Promise<boolean> {
 
 function getGitRepoName() {
     try {
-        const repoName = execSync("basename -s .git `git config --get remote.origin.url`").toString().trim();
-        if (repoName) {
-            console.log(chalk.green(`Name of the Github Repository found : ${repoName}`));
-            return repoName;
+        const gitUrl = execSync("git config --get remote.origin.url").toString().trim();
+        if (gitUrl !== "" && gitUrl !== undefined) {
+            const repoPath = gitUrl.split(":")[1];
+            if (repoPath) {
+                const repoName = repoPath.replace(".git", "").replace("/", "-");
+                if (repoName) {
+                    console.log(chalk.green(`Name of the Github Repository found : ${repoName}`));
+                    return repoName;
+                } else {
+                    throw new Error("Name of the Github Repository not found.");
+                }
+            } else {
+                throw new Error("Invalid Git URL format.");
+            }
         } else {
-            throw new Error("Name of the Github Repository not found.");
+            throw new Error("Git URL is empty or undefined.");
         }
-    } catch (error: unknown) {
+    } catch (error) {
         console.error(chalk.red("Error to find repository name: ", error));
     }
 }
