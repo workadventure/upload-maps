@@ -31,7 +31,7 @@ It will ask you some questions:
    There you can fine "Map-storage API endpoint" it is the url for uploading map storage
 
 3. Directoy
-   You can also add a directory name if you want. If you leave this blank, the default name will be map-user.
+   You can also add a directory name if you want. If you leave this blank, the default name will be maps.
    It will be the folder where all your uploaded files will be stored in.
 
 You can also use it with flags to upload your map but keep in mind that the secret variables will not be saved in .env and .env.secret files. This are the differents flags :
