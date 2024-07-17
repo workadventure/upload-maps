@@ -169,7 +169,7 @@ async function askQuestions(): Promise<Config> {
     );
     directory = prompt(chalk.bold(`Name of directory ? (Press enter to get the default directory) : `));
 
-    if (directory === "" || directory === undefined) {
+    if (directory.trim() === "" || directory === undefined) {
         directory = defaultDirectory;
     } else if (directory === "/") {
         console.log(chalk.green("Your map will be in the root directory"));
