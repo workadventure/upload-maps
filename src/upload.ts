@@ -100,7 +100,7 @@ function getGitRepoName() {
             throw new Error("Git URL is empty or undefined.");
         }
     } catch (error) {
-        console.error(chalk.red("Error to find repository name: ", error));
+        console.error(chalk.red("Error to find repository name : ", error));
     }
 }
 
