@@ -30,15 +30,16 @@ It will ask you some questions:
    On the left panel you can go to Developers tab --> API keys / Zapier.
    There you can fine "Map-storage API endpoint" it is the url for uploading map storage
 
-3. Directoy
-   You can also add a directory name if you want. If you leave this blank, the default name will be maps.
+3. Upload Directoy
+   You can add a directory name. If you leave this blank, the default name will be your github name and your github repository name.
+   You can also choose a personal name if you want to.
    It will be the folder where all your uploaded files will be stored in.
 
 You can also use it with flags to upload your map but keep in mind that the secret variables will not be saved in .env and .env.secret files. This are the differents flags :
 
     -k for the map storage API KEY
     -u for the map storage URL
-    -d for the directory
+    -d for the upload directory
 
 Here is how you can use flags :
 
