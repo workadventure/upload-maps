@@ -16,7 +16,7 @@ const prompt = promptSync();
 const linkForMapStorageInfo = "https://admin.workadventu.re/login";
 
 function shouldRunInit(config: Config) {
-    return !(config.mapStorageApiKey || config.uploadDirectory || config.mapStorageUrl);
+    return !(config.mapStorageApiKey || config.directory || config.mapStorageUrl);
 }
 
 // Function to create the zip folder
@@ -100,7 +100,7 @@ function getGitRepoName() {
             throw new Error("Git URL is empty or undefined.");
         }
     } catch (error) {
-        console.error(chalk.red("Error to find repository name : ", error));
+        throw new Error(chalk.red("Error to find repository name : ", error));
     }
 }
 
@@ -161,24 +161,24 @@ async function askQuestions(): Promise<Config> {
         }
     }
 
-    let uploadDirectory = "";
+    let directory = "";
     const defaultDirectory = getGitRepoName();
 
     console.log(
         chalk.green("By default it will be your github name and your github repository name :", defaultDirectory),
     );
-    uploadDirectory = prompt(chalk.bold(`Name of directory ? (Press enter to get the default directory) : `));
+    directory = prompt(chalk.bold(`Name of directory ? (Press enter to get the default directory) : `));
 
-    if (uploadDirectory === "" || uploadDirectory === undefined) {
-        uploadDirectory = defaultDirectory ?? "";
-    } else if (uploadDirectory === "/") {
+    if (directory === "" || directory === undefined) {
+        directory = defaultDirectory;
+    } else if (directory === "/") {
         console.log(chalk.green("Your map will be in the root directory"));
     }
 
-    console.log(chalk.green("Your map will be in the directory:", uploadDirectory));
+    console.log(chalk.green("Your map will be in the directory:", directory));
     console.log("\n------------------------------------");
 
-    return { mapStorageApiKey, uploadDirectory, mapStorageUrl, uploadMode: "MAP_STORAGE" };
+    return { mapStorageApiKey, directory, mapStorageUrl, uploadMode: "MAP_STORAGE" };
 }
 
 // Upload function with axios
@@ -198,7 +198,7 @@ async function uploadMap(config: Config) {
         {
             apiKey: config.mapStorageApiKey,
             file: fs.createReadStream("dist.zip"),
-            uploadDirectory: config.uploadDirectory,
+            directory: config.directory,
         },
         {
             headers: {
@@ -216,7 +216,7 @@ async function uploadMap(config: Config) {
 function createEnvsFiles(config: Config) {
     fs.appendFileSync(
         ".env",
-        `\nMAP_STORAGE_URL=${config.mapStorageUrl}\nUPLOAD_DIRECTORY=${config.uploadDirectory}\nUPLOAD_MODE=${config.uploadMode}`,
+        `\nMAP_STORAGE_URL=${config.mapStorageUrl}\nUPLOAD_DIRECTORY=${config.directory}\nUPLOAD_MODE=${config.uploadMode}`,
     );
     fs.writeFileSync(".env.secret", `MAP_STORAGE_API_KEY=${config.mapStorageApiKey}`);
     console.log(chalk.green("Env files created successfully\n"));
@@ -230,7 +230,7 @@ function createEnvsFiles(config: Config) {
 interface Config {
     mapStorageUrl: string;
     mapStorageApiKey: string;
-    uploadDirectory: string;
+    directory: string;
     uploadMode: string;
 }
 
@@ -251,7 +251,7 @@ async function main() {
         mapStorageApiKey: (options.mapStorageApiKey as string) || process.env.MAP_STORAGE_API_KEY || "",
         uploadMode: (options.uploadMode as string) || process.env.UPLOAD_MODE || "MAP_STORAGE",
         mapStorageUrl: (options.mapStorageUrl as string) || process.env.MAP_STORAGE_URL || "",
-        uploadDirectory: (options.uploadDirectory as string) || process.env.UPLOAD_DIRECTORY || "",
+        directory: (options.directory as string) || process.env.UPLOAD_DIRECTORY || "",
     };
 
     let shouldWriteEnvFile = false;
@@ -282,10 +282,10 @@ async function main() {
         stopOnError = true;
     }
 
-    if (!config.uploadDirectory) {
+    if (!config.directory) {
         console.error(
             chalk.red(
-                "Could not find the directory or directory name is null. Please provide it using the --directory option in the command line or use the DIRECTORY environment variable.",
+                "Could not find the directory or directory name is null. Please provide it using the --directory option in the command line or use the UPLOAD_DIRECTORY environment variable.",
             ),
         );
         stopOnError = true;
