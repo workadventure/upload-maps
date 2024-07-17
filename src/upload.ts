@@ -164,7 +164,9 @@ async function askQuestions(): Promise<Config> {
     let uploadDirectory = "";
     const defaultDirectory = getGitRepoName();
 
-    console.log(chalk.green("By default it will be your github name and your github repository name :", defaultDirectory));
+    console.log(
+        chalk.green("By default it will be your github name and your github repository name :", defaultDirectory),
+    );
     uploadDirectory = prompt(chalk.bold(`Name of directory ? (Press enter to get the default directory) : `));
 
     if (uploadDirectory === "" || uploadDirectory === undefined) {
@@ -183,7 +185,7 @@ async function askQuestions(): Promise<Config> {
 async function uploadMap(config: Config) {
     console.log("\nYour map is uploading ...");
     console.log("\n------------------------------------\n");
-    console.log("CONFIG :", config)
+    console.log("CONFIG :", config);
 
     let url = config.mapStorageUrl;
     if (!url.endsWith("/")) {
