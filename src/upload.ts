@@ -16,7 +16,7 @@ const prompt = promptSync();
 const linkForMapStorageInfo = "https://admin.workadventu.re/login";
 
 function shouldRunInit(config: Config) {
-    return !(config.mapStorageApiKey || config.directory || config.mapStorageUrl);
+    return !(config.mapStorageApiKey || config.uploadDirectory || config.mapStorageUrl);
 }
 
 // Function to create the zip folder
@@ -89,7 +89,6 @@ function getGitRepoName() {
             if (repoPath) {
                 const repoName = repoPath.replace(".git", "").replace("/", "-");
                 if (repoName) {
-                    console.log(chalk.green(`Name of the Github Repository found : ${repoName}`));
                     return repoName;
                 } else {
                     throw new Error("Name of the Github Repository not found.");
@@ -111,8 +110,8 @@ async function askQuestions(): Promise<Config> {
     console.log(chalk.green("\nLooks like this is your first time uploading a map! Let's configure the map upload.\n"));
     console.log(
         chalk.bold(
-            "Running this command will ask you different parameters, the URL where you're going to upload your map, the directory of your map and the API key.",
-            "If you don't fill in a dorectory, by default it will be 'maps'. If you really want to put your files in at the root of the project you can just enter '/'.",
+            "Running this command will ask you different parameters, the URL where you're going to upload your map, the upload directory of your map and the API key.",
+            "If you don't fill in a dorectory, (by default it will be your github name and your github repository name). If you really want to put your files in at the root of the project you can just enter '/'.",
         ),
     );
     console.log(chalk.yellow("Be careful if you upload with '/' directory, it will delete all the other WAM files.\n"));
@@ -162,32 +161,29 @@ async function askQuestions(): Promise<Config> {
         }
     }
 
-    let directory = "";
+    let uploadDirectory = "";
     const defaultDirectory = getGitRepoName();
 
-    if (defaultDirectory === undefined) {
-        while (!directory && !defaultDirectory) {
-            directory = prompt(chalk.bold(`Name of directory ? You have to put the name of your repository Github : `));
-            if (directory) {
-                console.log(chalk.green("Your map will be in the directory:", directory));
-                console.log("\n------------------------------------");
-            } else if (directory === "/") {
-                console.log(chalk.green("Your map will be in the root directory"));
-            }
-        }
-    } else {
-        directory = defaultDirectory;
+    console.log(chalk.green("By default it will be your github name and your github repository name :", defaultDirectory));
+    uploadDirectory = prompt(chalk.bold(`Name of directory ? (Press enter to get the default directory) : `));
+
+    if (uploadDirectory === "" || uploadDirectory === undefined) {
+        uploadDirectory = defaultDirectory ?? "";
+    } else if (uploadDirectory === "/") {
+        console.log(chalk.green("Your map will be in the root directory"));
     }
 
-    console.log(chalk.green("Your map will be in the directory who has the same name of your repository !", directory));
+    console.log(chalk.green("Your map will be in the directory:", uploadDirectory));
     console.log("\n------------------------------------");
 
-    return { mapStorageApiKey, directory, mapStorageUrl, uploadMode: "MAP_STORAGE" };
+    return { mapStorageApiKey, uploadDirectory, mapStorageUrl, uploadMode: "MAP_STORAGE" };
 }
 
 // Upload function with axios
 async function uploadMap(config: Config) {
     console.log("\nYour map is uploading ...");
+    console.log("\n------------------------------------\n");
+    console.log("CONFIG :", config)
 
     let url = config.mapStorageUrl;
     if (!url.endsWith("/")) {
@@ -200,7 +196,7 @@ async function uploadMap(config: Config) {
         {
             apiKey: config.mapStorageApiKey,
             file: fs.createReadStream("dist.zip"),
-            directory: config.directory,
+            uploadDirectory: config.uploadDirectory,
         },
         {
             headers: {
@@ -218,13 +214,13 @@ async function uploadMap(config: Config) {
 function createEnvsFiles(config: Config) {
     fs.appendFileSync(
         ".env",
-        `\nMAP_STORAGE_URL=${config.mapStorageUrl}\nDIRECTORY=${config.directory}\nUPLOAD_MODE=${config.uploadMode}`,
+        `\nMAP_STORAGE_URL=${config.mapStorageUrl}\nUPLOAD_DIRECTORY=${config.uploadDirectory}\nUPLOAD_MODE=${config.uploadMode}`,
     );
     fs.writeFileSync(".env.secret", `MAP_STORAGE_API_KEY=${config.mapStorageApiKey}`);
     console.log(chalk.green("Env files created successfully\n"));
     console.log(
         chalk.green(
-            "In the future, if you need to change the URL or the API Key, you can now directly edit the .env and .env.secret files.\n",
+            "In the future, if you need to change credentials you can now directly edit the .env and .env.secret files.\n",
         ),
     );
 }
@@ -232,7 +228,7 @@ function createEnvsFiles(config: Config) {
 interface Config {
     mapStorageUrl: string;
     mapStorageApiKey: string;
-    directory: string;
+    uploadDirectory: string;
     uploadMode: string;
 }
 
@@ -253,7 +249,7 @@ async function main() {
         mapStorageApiKey: (options.mapStorageApiKey as string) || process.env.MAP_STORAGE_API_KEY || "",
         uploadMode: (options.uploadMode as string) || process.env.UPLOAD_MODE || "MAP_STORAGE",
         mapStorageUrl: (options.mapStorageUrl as string) || process.env.MAP_STORAGE_URL || "",
-        directory: (options.directory as string) || process.env.DIRECTORY || "",
+        uploadDirectory: (options.uploadDirectory as string) || process.env.UPLOAD_DIRECTORY || "",
     };
 
     let shouldWriteEnvFile = false;
@@ -284,7 +280,7 @@ async function main() {
         stopOnError = true;
     }
 
-    if (!config.directory) {
+    if (!config.uploadDirectory) {
         console.error(
             chalk.red(
                 "Could not find the directory or directory name is null. Please provide it using the --directory option in the command line or use the DIRECTORY environment variable.",
