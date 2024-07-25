@@ -154,7 +154,7 @@ async function askQuestions(): Promise<Config> {
 
     let mapStorageApiKey = "";
     while (!mapStorageApiKey) {
-        mapStorageApiKey = prompt(chalk.bold("Please enter your API Key: "));
+        mapStorageApiKey = prompt(chalk.bold("Please enter your API Key : "));
         if (mapStorageApiKey) {
             console.log(chalk.green("Your API Key is:", mapStorageApiKey));
             console.log("\n------------------------------------\n");
