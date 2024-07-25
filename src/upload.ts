@@ -165,15 +165,21 @@ async function askQuestions(): Promise<Config> {
     const defaultDirectory = getGitRepoName();
 
     if (defaultDirectory === undefined || defaultDirectory === "") {
-        directory = prompt(chalk.bold(`Name of directory ? You don't have a github repository so you can enter the name of the directory. (If you just press enter, it will be maps) : `));
+        directory = prompt(
+            chalk.bold(
+                `Name of directory ? You don't have a github repository so you can enter the name of the directory. (If you just press enter, it will be maps) : `,
+            ),
+        );
         if (directory.trim() === "" || directory === undefined) {
             directory = "maps";
         } else if (directory === "/") {
             console.log(chalk.green("Your map will be in the root directory"));
         }
     } else {
-        console.log(chalk.green("By default it will be your github name and your github repository name :", defaultDirectory)),
-        directory = prompt(chalk.bold(`Name of directory ? (Press enter to get the default directory) : `));
+        console.log(
+            chalk.green("By default it will be your github name and your github repository name :", defaultDirectory),
+        ),
+            (directory = prompt(chalk.bold(`Name of directory ? (Press enter to get the default directory) : `)));
         if (directory.trim() === "" || directory === undefined) {
             directory = defaultDirectory;
         } else if (directory === "/") {
@@ -217,10 +223,7 @@ async function uploadMap(config: Config) {
 
 // Function to create the .env files
 function createEnvsFiles(config: Config) {
-    fs.appendFileSync(
-        ".env",
-        `\nMAP_STORAGE_URL=${config.mapStorageUrl}\nUPLOAD_DIRECTORY=${config.directory}\n`,
-    );
+    fs.appendFileSync(".env", `\nMAP_STORAGE_URL=${config.mapStorageUrl}\nUPLOAD_DIRECTORY=${config.directory}\n`);
     fs.writeFileSync(".env.secret", `MAP_STORAGE_API_KEY=${config.mapStorageApiKey}`);
     console.log(chalk.green("Env files created successfully\n"));
     console.log(
