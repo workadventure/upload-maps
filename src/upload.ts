@@ -91,16 +91,16 @@ function getGitRepoName() {
                 if (repoName) {
                     return repoName;
                 } else {
-                    throw new Error("Name of the Github Repository not found.");
+                    console.log(chalk.red("Error to find repository name."));
                 }
             } else {
-                throw new Error("Invalid Git URL format.");
+                console.log(chalk.red("Error to find repository name."));
             }
         } else {
-            throw new Error("Git URL is empty or undefined.");
+            console.log(chalk.red("Error to find repository name."));
         }
     } catch (error) {
-        throw new Error(chalk.red("Error to find repository name : ", error));
+        console.log(chalk.red("Error to find repository name."));
     }
 }
 
@@ -164,20 +164,30 @@ async function askQuestions(): Promise<Config> {
     let directory = "";
     const defaultDirectory = getGitRepoName();
 
-    console.log(
-        chalk.green("By default it will be your github name and your github repository name :", defaultDirectory),
-    );
-    directory = prompt(chalk.bold(`Name of directory ? (Press enter to get the default directory) : `));
-
-    if (directory.trim() === "" || directory === undefined) {
-        directory = defaultDirectory;
-    } else if (directory === "/") {
-        console.log(chalk.green("Your map will be in the root directory"));
+    if (defaultDirectory === undefined || defaultDirectory === "") {
+        directory = prompt(
+            chalk.bold(
+                `Name of directory ? You don't have a github repository so you can enter the name of the directory. (If you just press enter, it will be maps) : `,
+            ),
+        );
+        if (directory.trim() === "" || directory === undefined) {
+            directory = "maps";
+        } else if (directory === "/") {
+            console.log(chalk.green("Your map will be in the root directory"));
+        }
+    } else {
+        console.log(
+            chalk.green("By default it will be your github name and your github repository name :", defaultDirectory),
+        ),
+            (directory = prompt(chalk.bold(`Name of directory ? (Press enter to get the default directory) : `)));
+        if (directory.trim() === "" || directory === undefined) {
+            directory = defaultDirectory;
+        } else if (directory === "/") {
+            console.log(chalk.green("Your map will be in the root directory"));
+        }
     }
-
     console.log(chalk.green("Your map will be in the directory:", directory));
     console.log("\n------------------------------------");
-
     return { mapStorageApiKey, directory, mapStorageUrl, uploadMode: "MAP_STORAGE" };
 }
 
@@ -185,7 +195,6 @@ async function askQuestions(): Promise<Config> {
 async function uploadMap(config: Config) {
     console.log("\nYour map is uploading ...");
     console.log("\n------------------------------------\n");
-    console.log("CONFIG :", config);
 
     let url = config.mapStorageUrl;
     if (!url.endsWith("/")) {
@@ -214,10 +223,7 @@ async function uploadMap(config: Config) {
 
 // Function to create the .env files
 function createEnvsFiles(config: Config) {
-    fs.appendFileSync(
-        ".env",
-        `\nMAP_STORAGE_URL=${config.mapStorageUrl}\nUPLOAD_DIRECTORY=${config.directory}\nUPLOAD_MODE=${config.uploadMode}`,
-    );
+    fs.appendFileSync(".env", `\nMAP_STORAGE_URL=${config.mapStorageUrl}\nUPLOAD_DIRECTORY=${config.directory}\n`);
     fs.writeFileSync(".env.secret", `MAP_STORAGE_API_KEY=${config.mapStorageApiKey}`);
     console.log(chalk.green("Env files created successfully\n"));
     console.log(
