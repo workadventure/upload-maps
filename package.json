@@ -31,7 +31,7 @@
         "dotenv": "^16.4.5",
         "prompt-sync": "^4.2.0"
     },
-    "author": "Alexandre ARTUS  <a.artus@workadventu.re>",
+    "author": "Alexandre ARTUS <a.artus@workadventu.re>",
     "license": "ISC",
     "devDependencies": {
         "@eslint/compat": "^1.0.1",

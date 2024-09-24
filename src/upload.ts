@@ -13,7 +13,7 @@ const program = new Command();
 
 const prompt = promptSync();
 
-const linkForMapStorageInfo = "https://admin.workadventu.re/login";
+const linkForMapStorageInfo = "https://admin.workadventu.re";
 
 function shouldRunInit(config: Config) {
     return !(config.mapStorageApiKey || config.directory || config.mapStorageUrl);
@@ -91,41 +91,41 @@ function getGitRepoName() {
                 if (repoName) {
                     return repoName;
                 } else {
-                    console.log(chalk.red("Error to find repository name."));
+                    console.log(chalk.red("Error finding the repository name."));
                 }
             } else {
-                console.log(chalk.red("Error to find repository name."));
+                console.log(chalk.red("Error finding the repository name."));
             }
         } else {
-            console.log(chalk.red("Error to find repository name."));
+            console.log(chalk.red("Error finding the repository name."));
         }
     } catch (error) {
-        console.log(chalk.red("Error to find repository name."));
+        console.log(chalk.red("Error finding the repository name."));
     }
 }
 
 // Ask input for users
 async function askQuestions(): Promise<Config> {
     console.log("------------------------------------");
-    console.log(chalk.green("\nLooks like this is your first time uploading a map! Let's configure the map upload.\n"));
+    console.log(chalk.green("\nLooks like this is your first time uploading a map! Let's configure the Map upload.\n"));
     console.log(
         chalk.bold(
-            "Running this command will ask you different parameters, the URL where you're going to upload your map, the upload directory of your map and the API key.",
-            "If you don't fill in a dorectory, (by default it will be your github name and your github repository name). If you really want to put your files in at the root of the project you can just enter '/'.",
+            "Running this command will ask you different parameters, the URL where you're going to upload your map, the API key and a directory to upload files.",
+            "If you don't fill-in a directory, the default will be your Github pseudo and your Github repository name). If you really want to put your files at the root of the project you can just enter '/'.",
         ),
     );
-    console.log(chalk.yellow("Be careful if you upload with '/' directory, it will delete all the other WAM files.\n"));
-    console.log(chalk.bold("How does it work ?\n"));
-    console.log(" 1. First your map files are going to be build\n");
+    console.log(chalk.yellow("Be careful though, if you upload with '/' directory, it will delete all the other WAM files.\n"));
+    console.log(chalk.bold("How it works ?\n"));
+    console.log(" 1. First your map files are going to be built\n");
     console.log(" 2. The scripts of your map are compiled and bundled\n");
-    console.log(" 3. The result of the built is written in the dist directory\n");
-    console.log(" 4. The content of the public directory is copied to the dist directory.\n");
+    console.log(" 3. The result of the build is written in the dist directory\n");
+    console.log(" 4. The content of the public directory is copied to the dist directory\n");
     console.log(
-        " 5. Then, a ZIP file of the dist directory is created and sent to the WorkAdventure 'map-storage' server.\n",
+        " 5. A ZIP file of the dist directory is created and sent to the WorkAdventure 'map-storage' server.\n",
     );
     console.log(
         chalk.yellow(
-            " !!! Caution, the WorkAdventure server only stores the built files (from the \"dist\" directory). You cannot get back your original source files from the WorkAdventure server, so make sure to keep these original files in a safe place. If you want to modify the map just modify the source files and run the command 'npm run upload' again.\n",
+            " !!! Caution, the WorkAdventure server only stores the built files (from the \"dist\" directory). You cannot get back your original files from the WorkAdventure server, so make sure to keep those in a safe place. If you want to modify the map just modify the source files and run the command 'npm run upload' again.\n",
         ),
     );
     console.log("------------------------------------");
@@ -133,16 +133,16 @@ async function askQuestions(): Promise<Config> {
     console.log(chalk.blue(`\nNow let's set up the configuration.\n`));
     console.log(
         chalk.blue(
-            `If you don't know how to find your map storage URL, you can see more details in your admin account: ${linkForMapStorageInfo} !\n`,
+            `If you don't know how to find your map storage URL, you can find it in your admin account: ${linkForMapStorageInfo} !\n`,
         ),
     );
-    console.log("------------------------------------\n");
+    console.log("-\n");
     let mapStorageUrl = "";
     while (!mapStorageUrl) {
-        mapStorageUrl = prompt(chalk.bold(`Please enter your map storage URL: `));
+        mapStorageUrl = prompt(chalk.bold(`Please enter your Map storage URL: `));
         if (mapStorageUrl) {
             if (await checkMapStorageUrl(mapStorageUrl)) {
-                console.log(chalk.green("Your map storage URL is valid."));
+                console.log("You entered: " + chalk.green("'"+mapStorageUrl+"'"));
             } else {
                 mapStorageUrl = "";
             }
@@ -150,14 +150,14 @@ async function askQuestions(): Promise<Config> {
             console.log(chalk.red("A URL is required to upload your map."));
         }
     }
-    console.log("\n------------------------------------\n");
+    console.log("\n-\n");
 
     let mapStorageApiKey = "";
     while (!mapStorageApiKey) {
-        mapStorageApiKey = prompt(chalk.bold("Please enter your API Key : "));
+        mapStorageApiKey = prompt(chalk.bold("Please enter your API Key: "));
         if (mapStorageApiKey) {
-            console.log(chalk.green("Your API Key is:", mapStorageApiKey));
-            console.log("\n------------------------------------\n");
+            console.log("You entered: " + chalk.green("'"+mapStorageApiKey+"'"));
+            console.log("\n-\n");
         }
     }
 
@@ -167,33 +167,33 @@ async function askQuestions(): Promise<Config> {
     if (defaultDirectory === undefined || defaultDirectory === "") {
         directory = prompt(
             chalk.bold(
-                `Name of directory ? You don't have a github repository so you can enter the name of the directory. (If you just press enter, it will be maps) : `,
+                `Upload directory: You don't have a Github repository so choose a directory name (Default is 'maps'):`,
             ),
         );
         if (directory.trim() === "" || directory === undefined) {
             directory = "maps";
         } else if (directory === "/") {
-            console.log(chalk.green("Your map will be in the root directory"));
+            console.log(chalk.yellow("Your map files will be stored in the root directory."));
         }
     } else {
         console.log(
-            chalk.green("By default it will be your github name and your github repository name :", defaultDirectory),
+            chalk.green("By default it will be your Github pseudo and your Github repository name:", defaultDirectory),
         ),
-            (directory = prompt(chalk.bold(`Name of directory ? (Press enter to get the default directory) : `)));
+            (directory = prompt(chalk.bold(`Upload directory (Press enter to get the default directory): `)));
         if (directory.trim() === "" || directory === undefined) {
             directory = defaultDirectory;
         } else if (directory === "/") {
-            console.log(chalk.green("Your map will be in the root directory"));
+            console.log(chalk.yellow("Your map files will be stored in the root directory."));
         }
     }
-    console.log(chalk.green("Your map will be in the directory:", directory));
+    console.log("You entered: " + chalk.green("'"+directory+"'"));
     console.log("\n------------------------------------");
     return { mapStorageApiKey, directory, mapStorageUrl, uploadMode: "MAP_STORAGE" };
 }
 
 // Upload function with axios
 async function uploadMap(config: Config) {
-    console.log("\nYour map is uploading ...");
+    console.log(chalk.bold("\nYour map is uploading..."));
     console.log("\n------------------------------------\n");
 
     let url = config.mapStorageUrl;
@@ -217,7 +217,7 @@ async function uploadMap(config: Config) {
         },
     );
 
-    console.log(chalk.green("Upload done successfully !"));
+    console.log(chalk.green.bold("Map files uploaded successfully!"));
     console.log("\n------------------------------------\n");
 }
 
@@ -225,10 +225,10 @@ async function uploadMap(config: Config) {
 function createEnvsFiles(config: Config) {
     fs.appendFileSync(".env", `\nMAP_STORAGE_URL=${config.mapStorageUrl}\nUPLOAD_DIRECTORY=${config.directory}\n`);
     fs.writeFileSync(".env.secret", `MAP_STORAGE_API_KEY=${config.mapStorageApiKey}`);
-    console.log(chalk.green("Env files created successfully\n"));
+    console.log(chalk.green("Env files created successfully.\n"));
     console.log(
         chalk.green(
-            "In the future, if you need to change credentials you can now directly edit the .env and .env.secret files.\n",
+            "If you need to manually change the credentials, you can now edit the .env and .env.secret files.\n",
         ),
     );
 }
@@ -243,9 +243,9 @@ interface Config {
 // Main function
 async function main() {
     program
-        .option("-k, --mapStorageApiKey <mapStorageApiKey>", "API Key for the map storage")
-        .option("-u, --mapStorageUrl <mapStorageUrl>", "URL for the map storage")
-        .option("-d, --directory <directory>", "Directory for the map storage")
+        .option("-u, --mapStorageUrl <mapStorageUrl>", "URL for the Map storage")
+        .option("-k, --mapStorageApiKey <mapStorageApiKey>", "API Key")      
+        .option("-d, --directory <directory>", "Directory for the Map storage")
         .parse(process.argv);
 
     const options = program.opts();
