@@ -21,11 +21,11 @@ To use this package, import it into your project and run the command in your ter
 It will ask you some questions:
 
 1. The URL of your map storage:
-   For SaaS, you can find it on [](https://admin.workadventu.re).
+   For SaaS, you can find it on [the admin](https://admin.workadventu.re).
    On the left panel you can go to Developers tab -> API keys / Zapier.
    There you can find "Map-storage API endpoint".
 2. Your API Key:
-   For SaaS, you can find it on [](https://admin.workadventu.re).
+   For SaaS, you can find it on [the admin](https://admin.workadventu.re).
    On the left panel you can go to Developers tab -> API keys / Zapier.
    There you can create a new token.
 3. Upload directoy:
