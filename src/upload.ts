@@ -114,7 +114,9 @@ async function askQuestions(): Promise<Config> {
             "If you don't fill-in a directory, the default will be your Github pseudo and your Github repository name). If you really want to put your files at the root of the project you can just enter '/'.",
         ),
     );
-    console.log(chalk.yellow("Be careful though, if you upload with '/' directory, it will delete all the other WAM files.\n"));
+    console.log(
+        chalk.yellow("Be careful though, if you upload with '/' directory, it will delete all the other WAM files.\n"),
+    );
     console.log(chalk.bold("How it works ?\n"));
     console.log(" 1. First your map files are going to be built\n");
     console.log(" 2. The scripts of your map are compiled and bundled\n");
@@ -142,7 +144,7 @@ async function askQuestions(): Promise<Config> {
         mapStorageUrl = prompt(chalk.bold(`Please enter your Map storage URL: `));
         if (mapStorageUrl) {
             if (await checkMapStorageUrl(mapStorageUrl)) {
-                console.log("You entered: " + chalk.green("'"+mapStorageUrl+"'"));
+                console.log("You entered: " + chalk.green("'" + mapStorageUrl + "'"));
             } else {
                 mapStorageUrl = "";
             }
@@ -156,7 +158,7 @@ async function askQuestions(): Promise<Config> {
     while (!mapStorageApiKey) {
         mapStorageApiKey = prompt(chalk.bold("Please enter your API Key: "));
         if (mapStorageApiKey) {
-            console.log("You entered: " + chalk.green("'"+mapStorageApiKey+"'"));
+            console.log("You entered: " + chalk.green("'" + mapStorageApiKey + "'"));
             console.log("\n-\n");
         }
     }
@@ -186,7 +188,7 @@ async function askQuestions(): Promise<Config> {
             console.log(chalk.yellow("Your map files will be stored in the root directory."));
         }
     }
-    console.log("You entered: " + chalk.green("'"+directory+"'"));
+    console.log("You entered: " + chalk.green("'" + directory + "'"));
     console.log("\n------------------------------------");
     return { mapStorageApiKey, directory, mapStorageUrl, uploadMode: "MAP_STORAGE" };
 }
@@ -244,7 +246,7 @@ interface Config {
 async function main() {
     program
         .option("-u, --mapStorageUrl <mapStorageUrl>", "URL for the Map storage")
-        .option("-k, --mapStorageApiKey <mapStorageApiKey>", "API Key")      
+        .option("-k, --mapStorageApiKey <mapStorageApiKey>", "API Key")
         .option("-d, --directory <directory>", "Directory for the Map storage")
         .parse(process.argv);
 
