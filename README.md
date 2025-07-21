@@ -26,23 +26,23 @@ npm run upload
 
 It will ask you a few questions:
 
-1. **Map Storage URL** (stored in `MAP_STORAGE_URL` in the *.env* file)
+1. **Map Storage URL** (stored in `MAP_STORAGE_URL` in the _.env_ file)
 
-   > *For SaaS users, you can find it in the [admin panel](https://admin.workadventu.re) under Developers -> API keys / Zapier.*
+    > _For SaaS users, you can find it in the [admin panel](https://admin.workadventu.re) under Developers -> API keys / Zapier._
 
-2. **API Key** (stored in `MAP_STORAGE_API_KEY` in the *.env.secret* file)
+2. **API Key** (stored in `MAP_STORAGE_API_KEY` in the _.env.secret_ file)
 
-   > *For SaaS users, you can generate this in the admin panel, under Developers -> API keys / Zapier.*
+    > _For SaaS users, you can generate this in the admin panel, under Developers -> API keys / Zapier._
 
-3. **Upload Directory** (stored in `UPLOAD_DIRECTORY` in the *.env* file)
+3. **Upload Directory** (stored in `UPLOAD_DIRECTORY` in the _.env_ file)
 
-   > *If you have GitHub and forked the repository, the directory will default to your GitHub username and repository name. Otherwise, specify a custom name.*
+    > _If you have GitHub and forked the repository, the directory will default to your GitHub username and repository name. Otherwise, specify a custom name._
 
 Alternatively, you can use flags to upload your map, though the secret variables won't be saved in the `.env` or `.env.secret` files. Available flags include:
 
-- `-u`: Map storage URL
-- `-k`: API Key
-- `-d`: Upload directory
+-   `-u`: Map storage URL
+-   `-k`: API Key
+-   `-d`: Upload directory
 
 Example:
 
@@ -57,20 +57,21 @@ After answering these questions, the script will start to upload your maps. You 
 When you run `npm run upload`, the following steps are executed:
 
 1. **Build Phase**:
-   - Tilesets are optimized and chunked, removing any unused tiles.
-   - Scripts in the map are compiled (from TypeScript to JavaScript) and bundled into a single file.
-   - The result is written in the `dist` directory.
-   - The `public` directory content is copied to the `dist` directory.
+
+    - Tilesets are optimized and chunked, removing any unused tiles.
+    - Scripts in the map are compiled (from TypeScript to JavaScript) and bundled into a single file.
+    - The result is written in the `dist` directory.
+    - The `public` directory content is copied to the `dist` directory.
 
 2. **Upload Phase**:
-   - A ZIP file of the `dist` directory is created and sent to the **WorkAdventure** map-storage server.
-   - The server unzips and stores the files in your configured directory, creating `.wam` files for each `.tmj` file if needed.
-  
+    - A ZIP file of the `dist` directory is created and sent to the **WorkAdventure** map-storage server.
+    - The server unzips and stores the files in your configured directory, creating `.wam` files for each `.tmj` file if needed.
+
 > [!TIP]
 > You can skip the build phase and only upload the current state of your project with the command: `npm run upload-only`
 
 > [!WARNING]
-> The **WorkAdventure** server only stores the *built* map you upload. It does not store your original files. To update your map, make sure to keep the original files locally. If you need to make changes, update your files and run the upload command again.
+> The **WorkAdventure** server only stores the _built_ map you upload. It does not store your original files. To update your map, make sure to keep the original files locally. If you need to make changes, update your files and run the upload command again.
 
 ## ❓ Need Help
 
