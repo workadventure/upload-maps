@@ -204,22 +204,70 @@ async function uploadMap(config: Config) {
     }
     url += "upload";
 
-    await axios.post(
-        url,
-        {
-            apiKey: config.mapStorageApiKey,
-            file: fs.createReadStream("dist.zip"),
-            directory: config.directory,
-        },
-        {
-            headers: {
-                Authorization: `Bearer ${config.mapStorageApiKey}`,
-                "Content-Type": "multipart/form-data",
+    try {
+        await axios.post(
+            url,
+            {
+                apiKey: config.mapStorageApiKey,
+                file: fs.createReadStream("dist.zip"),
+                directory: config.directory,
             },
-        },
-    );
+            {
+                headers: {
+                    Authorization: `Bearer ${config.mapStorageApiKey}`,
+                    "Content-Type": "multipart/form-data",
+                },
+            },
+        );
 
-    console.log(chalk.green.bold("Map files uploaded successfully!"));
+        console.log(chalk.green.bold("Map files uploaded successfully!"));
+    } catch (err) {
+        if (isAxiosError(err)) {
+            console.error(chalk.red.bold("❌ An error occurred while uploading the map.\n"));
+            if (err.response) {
+                // The server responded with an error status code
+                const status = err.response.status;
+                const data = err.response.data as Record<string, unknown>;
+                if (status === 400) {
+                    console.error(
+                        chalk.yellow(
+                            "The server rejected the map (Error 400 - Bad Request).\nThis usually means there is a problem with one of your map files (for example, a syntax error in a .tmj or .json file).\n",
+                        ),
+                    );
+                    if (data && typeof data === "object" && Object.keys(data).length > 0) {
+                        console.error(chalk.yellow("The server reported issues with the following files:"));
+                        for (const file in data) {
+                            console.error(chalk.magenta(`  - ${file}`));
+                        }
+                    }
+                } else if (status === 401 || status === 403) {
+                    console.error(
+                        chalk.yellow(
+                            "Authentication failed. Please check that your API Key is correct and has not expired.",
+                        ),
+                    );
+                } else {
+                    console.error(chalk.yellow(`The server returned an unexpected error: ${status}`));
+                }
+            } else if (err.code === "ECONNREFUSED") {
+                console.error(
+                    chalk.yellow(
+                        "Could not connect to the server. Please check your internet connection and that the Map Storage URL is correct.",
+                    ),
+                );
+            } else {
+                console.error(chalk.yellow("An unknown network error occurred. Please try again."));
+            }
+        } else {
+            console.error(chalk.red.bold("An unexpected error occurred:"));
+            if (err instanceof Error) {
+                console.error(chalk.yellow(err.message));
+            } else {
+                console.error(err);
+            }
+        }
+        process.exit(1);
+    }
     console.log("\n------------------------------------\n");
 }
 
@@ -240,6 +288,16 @@ interface Config {
     mapStorageApiKey: string;
     directory: string;
     uploadMode: string;
+}
+
+
+function isValidUrl(url: string): boolean {
+    try {
+        new URL(url);
+        return true;
+    } catch {
+        return false;
+    }
 }
 
 // Main function
@@ -279,6 +337,13 @@ async function main() {
             ),
         );
         stopOnError = true;
+    } else if (!isValidUrl(config.mapStorageUrl)) {
+        console.error(
+            chalk.red(
+                `The map-storage URL "${config.mapStorageUrl}" is not a valid URL. Please check your .env file or the --mapStorageUrl argument.`,
+            ),
+        );
+        stopOnError = true;
     }
 
     if (!config.mapStorageApiKey) {
@@ -314,4 +379,7 @@ async function main() {
     }
 }
 
-main().catch((err) => console.error(err));
+main().catch((err) => {
+    console.error(err);
+    process.exit(1);
+});
