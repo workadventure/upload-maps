@@ -290,7 +290,6 @@ interface Config {
     uploadMode: string;
 }
 
-
 function isValidUrl(url: string): boolean {
     try {
         new URL(url);
