@@ -28,7 +28,8 @@ async function createZipDirectory(sourceDir: string, outPath: fs.PathLike) {
         archive
             .directory(sourceDir, false)
             .on("error", (err) => {
-                console.error(chalk.red(`Failed to create zip file: ${err.message}`));
+                const errorMessage = err instanceof Error ? err.message : String(err);
+                console.error(chalk.red(`Failed to create zip file: ${errorMessage}`));
                 console.error(chalk.yellow("What you need to do:"));
                 console.error(chalk.yellow("1. Make sure the 'dist' directory exists and contains your map files"));
                 console.error(chalk.yellow("2. Check that you have write permissions in this folder"));
@@ -39,11 +40,13 @@ async function createZipDirectory(sourceDir: string, outPath: fs.PathLike) {
 
         stream.on("close", () => resolve());
         stream.on("error", (err) => {
-            console.error(chalk.red(`Failed to write zip file: ${err.message}`));
+            const errorMessage = err instanceof Error ? err.message : String(err);
+            console.error(chalk.red(`Failed to write zip file: ${errorMessage}`));
             reject(err);
         });
         archive.finalize().catch((e) => {
-            console.error(chalk.red(`Failed to finalize zip archive: ${e.message}`));
+            const errorMessage = e instanceof Error ? e.message : String(e);
+            console.error(chalk.red(`Failed to finalize zip archive: ${errorMessage}`));
             reject(e);
         });
     });
@@ -91,7 +94,8 @@ async function checkMapStorageUrl(mapStorageUrl: string): Promise<boolean> {
                     console.log(chalk.yellow("3. Make sure the server is not down (try opening the URL in your browser)"));
                 } else {
                     console.log(chalk.red("Invalid URL. Please provide a valid URL.\n"));
-                    console.log(chalk.red(`Error: ${err.message}\n`));
+                    const errorMessage = err instanceof Error ? err.message : String(err);
+                    console.log(chalk.red(`Error: ${errorMessage}\n`));
                     console.log(
                         chalk.italic(
                             `You can find more information on where to find this URL here : ${linkForMapStorageInfo}\n`,
