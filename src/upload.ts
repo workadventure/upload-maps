@@ -91,7 +91,9 @@ async function checkMapStorageUrl(mapStorageUrl: string): Promise<boolean> {
                     console.log(chalk.yellow("What you need to do:"));
                     console.log(chalk.yellow("1. Check your internet connection"));
                     console.log(chalk.yellow("2. Verify the server URL is correct and accessible"));
-                    console.log(chalk.yellow("3. Make sure the server is not down (try opening the URL in your browser)"));
+                    console.log(
+                        chalk.yellow("3. Make sure the server is not down (try opening the URL in your browser)"),
+                    );
                 } else {
                     console.log(chalk.red("Invalid URL. Please provide a valid URL.\n"));
                     const errorMessage = err instanceof Error ? err.message : String(err);
@@ -133,7 +135,11 @@ function getGitRepoName() {
                 }
             } else {
                 console.log(chalk.yellow("Repository path detection: Your Git remote URL format is not recognized."));
-                console.log(chalk.yellow("This won't prevent the upload, you'll just need to choose a directory name manually."));
+                console.log(
+                    chalk.yellow(
+                        "This won't prevent the upload, you'll just need to choose a directory name manually.",
+                    ),
+                );
             }
         } else {
             console.log(chalk.red("Error finding the repository name."));
@@ -189,7 +195,9 @@ async function askQuestions(): Promise<Config> {
             }
         } else {
             console.log(chalk.red("A URL is required to upload your map."));
-            console.log(chalk.yellow("Please enter a valid map storage URL (it should start with https:// or http://)"));
+            console.log(
+                chalk.yellow("Please enter a valid map storage URL (it should start with https:// or http://)"),
+            );
         }
     }
     console.log("\n-\n");
@@ -290,25 +298,19 @@ async function uploadMap(config: Config) {
                     console.error(chalk.yellow(`The server returned an unexpected error: ${status}`));
                 }
             } else if (err.code === "ECONNREFUSED") {
-                console.error(
-                    chalk.red("Connection refused: Cannot connect to the map storage server.\n"),
-                );
+                console.error(chalk.red("Connection refused: Cannot connect to the map storage server.\n"));
                 console.error(chalk.yellow("What you need to do:"));
                 console.error(chalk.yellow("1. Check your internet connection"));
                 console.error(chalk.yellow("2. Verify the Map Storage URL is correct"));
                 console.error(chalk.yellow("3. Try accessing the URL in your web browser to test connectivity"));
             } else if (err.code === "ENOTFOUND") {
-                console.error(
-                    chalk.red("Server not found: The map storage server address cannot be reached.\n"),
-                );
+                console.error(chalk.red("Server not found: The map storage server address cannot be reached.\n"));
                 console.error(chalk.yellow("What you need to do:"));
                 console.error(chalk.yellow("1. Double-check the Map Storage URL for typos"));
                 console.error(chalk.yellow("2. Ensure the URL includes 'https://' at the beginning"));
                 console.error(chalk.yellow("3. Verify this is the correct server address from your admin panel"));
             } else if (err.code === "ETIMEDOUT") {
-                console.error(
-                    chalk.red("Upload timeout: The server took too long to respond.\n"),
-                );
+                console.error(chalk.red("Upload timeout: The server took too long to respond.\n"));
             } else {
                 console.error(chalk.yellow("An unknown network error occurred. Please try again."));
             }
