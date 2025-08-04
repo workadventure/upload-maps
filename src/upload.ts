@@ -27,11 +27,28 @@ async function createZipDirectory(sourceDir: string, outPath: fs.PathLike) {
     return new Promise<void>((resolve, reject) => {
         archive
             .directory(sourceDir, false)
-            .on("error", (err) => reject(err))
+            .on("error", (err) => {
+                const errorMessage = err instanceof Error ? err.message : String(err);
+                console.error(chalk.red(`Failed to create zip file: ${errorMessage}`));
+                console.error(chalk.yellow("What you need to do:"));
+                console.error(chalk.yellow("1. Make sure the 'dist' directory exists and contains your map files"));
+                console.error(chalk.yellow("2. Check that you have write permissions in this folder"));
+                console.error(chalk.yellow("3. Ensure there's enough disk space available"));
+                reject(err);
+            })
             .pipe(stream);
 
         stream.on("close", () => resolve());
-        archive.finalize().catch((e) => console.error(e));
+        stream.on("error", (err) => {
+            const errorMessage = err instanceof Error ? err.message : String(err);
+            console.error(chalk.red(`Failed to write zip file: ${errorMessage}`));
+            reject(err);
+        });
+        archive.finalize().catch((e) => {
+            const errorMessage = e instanceof Error ? e.message : String(e);
+            console.error(chalk.red(`Failed to finalize zip archive: ${errorMessage}`));
+            reject(e);
+        });
     });
 }
 
@@ -58,9 +75,29 @@ async function checkMapStorageUrl(mapStorageUrl: string): Promise<boolean> {
                         ),
                     );
                     console.log("------------------------------------\n");
+                } else if (status === 404) {
+                    console.log(chalk.red("Server not found: The map storage URL you provided does not exist.\n"));
+                    console.log(chalk.yellow("What you need to do:"));
+                    console.log(chalk.yellow("1. Double-check the URL you entered (look for typos)"));
+                    console.log(chalk.yellow("2. Make sure the URL includes 'https://' at the beginning"));
+                    console.log(chalk.yellow("3. Verify this is the correct server URL from your admin panel"));
+                    console.log(
+                        chalk.italic(
+                            `Find your correct server URL in your WorkAdventure admin panel: ${linkForMapStorageInfo}\n`,
+                        ),
+                    );
+                } else if (err.code === "ENOTFOUND" || err.code === "ECONNREFUSED") {
+                    console.log(chalk.red("Connection failed: Cannot reach the map storage server.\n"));
+                    console.log(chalk.yellow("What you need to do:"));
+                    console.log(chalk.yellow("1. Check your internet connection"));
+                    console.log(chalk.yellow("2. Verify the server URL is correct and accessible"));
+                    console.log(
+                        chalk.yellow("3. Make sure the server is not down (try opening the URL in your browser)"),
+                    );
                 } else {
                     console.log(chalk.red("Invalid URL. Please provide a valid URL.\n"));
-                    console.log(chalk.red(`Error: ${err.message}\n`));
+                    const errorMessage = err instanceof Error ? err.message : String(err);
+                    console.log(chalk.red(`Error: ${errorMessage}\n`));
                     console.log(
                         chalk.italic(
                             `You can find more information on where to find this URL here : ${linkForMapStorageInfo}\n`,
@@ -68,7 +105,10 @@ async function checkMapStorageUrl(mapStorageUrl: string): Promise<boolean> {
                     );
                 }
             } else {
-                console.log(chalk.red("Invalid URL. Please provide a valid URL.\n"));
+                console.log(chalk.red("Network error: Cannot connect to the map storage server.\n"));
+                console.log(chalk.yellow("What you need to do:"));
+                console.log(chalk.yellow("1. Check your internet connection"));
+                console.log(chalk.yellow("2. Verify the server URL format (should start with https:// or http://)"));
                 if (err instanceof Error) {
                     console.log(chalk.red(`Error: ${err.message}\n`));
                 }
@@ -94,7 +134,12 @@ function getGitRepoName() {
                     console.log(chalk.red("Error finding the repository name."));
                 }
             } else {
-                console.log(chalk.red("Error finding the repository name."));
+                console.log(chalk.yellow("Repository path detection: Your Git remote URL format is not recognized."));
+                console.log(
+                    chalk.yellow(
+                        "This won't prevent the upload, you'll just need to choose a directory name manually.",
+                    ),
+                );
             }
         } else {
             console.log(chalk.red("Error finding the repository name."));
@@ -150,6 +195,9 @@ async function askQuestions(): Promise<Config> {
             }
         } else {
             console.log(chalk.red("A URL is required to upload your map."));
+            console.log(
+                chalk.yellow("Please enter a valid map storage URL (it should start with https:// or http://)"),
+            );
         }
     }
     console.log("\n-\n");
@@ -223,7 +271,7 @@ async function uploadMap(config: Config) {
         console.log(chalk.green.bold("Map files uploaded successfully!"));
     } catch (err) {
         if (isAxiosError(err)) {
-            console.error(chalk.red.bold("❌ An error occurred while uploading the map.\n"));
+            console.error(chalk.red.bold("An error occurred while uploading the map.\n"));
             if (err.response) {
                 // The server responded with an error status code
                 const status = err.response.status;
@@ -250,11 +298,19 @@ async function uploadMap(config: Config) {
                     console.error(chalk.yellow(`The server returned an unexpected error: ${status}`));
                 }
             } else if (err.code === "ECONNREFUSED") {
-                console.error(
-                    chalk.yellow(
-                        "Could not connect to the server. Please check your internet connection and that the Map Storage URL is correct.",
-                    ),
-                );
+                console.error(chalk.red("Connection refused: Cannot connect to the map storage server.\n"));
+                console.error(chalk.yellow("What you need to do:"));
+                console.error(chalk.yellow("1. Check your internet connection"));
+                console.error(chalk.yellow("2. Verify the Map Storage URL is correct"));
+                console.error(chalk.yellow("3. Try accessing the URL in your web browser to test connectivity"));
+            } else if (err.code === "ENOTFOUND") {
+                console.error(chalk.red("Server not found: The map storage server address cannot be reached.\n"));
+                console.error(chalk.yellow("What you need to do:"));
+                console.error(chalk.yellow("1. Double-check the Map Storage URL for typos"));
+                console.error(chalk.yellow("2. Ensure the URL includes 'https://' at the beginning"));
+                console.error(chalk.yellow("3. Verify this is the correct server address from your admin panel"));
+            } else if (err.code === "ETIMEDOUT") {
+                console.error(chalk.red("Upload timeout: The server took too long to respond.\n"));
             } else {
                 console.error(chalk.yellow("An unknown network error occurred. Please try again."));
             }
@@ -351,6 +407,9 @@ async function main() {
                 "Could not find the map-storage API key. Please provide it using the --apiKey option in the command line or use the MAP_STORAGE_API_KEY environment variable.",
             ),
         );
+        console.error(chalk.yellow("What you need to do:"));
+        console.error(chalk.yellow("1. Use the --mapStorageApiKey option when running this command"));
+        console.error(chalk.yellow("2. Or add MAP_STORAGE_API_KEY to your .env.secret file"));
         stopOnError = true;
     }
 
