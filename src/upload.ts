@@ -1,7 +1,4 @@
 #!/usr/bin/env node
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/restrict-template-expressions */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 
 import * as fs from "fs";
 import archiver from "archiver";
@@ -338,7 +335,7 @@ async function uploadMap(config: Config) {
                                     console.error(chalk.yellow(`   Error: ${value}\n`));
                                 } else if (value && typeof value === "object") {
 
-                                    const categories = ['map', 'layers', 'tilesets', 'entities'];
+    
                                     
                               
                                     if (value.message) {
@@ -356,7 +353,7 @@ async function uploadMap(config: Config) {
 
                                     if (value.layers && Array.isArray(value.layers) && value.layers.length > 0) {
                                         console.error(chalk.yellow(` Layers Issues (${value.layers.length}):`));
-                                        value.layers.forEach((error: any, i: number) => {
+                                        (value.layers as any[]).forEach((error: any, i: number) => {
                                             console.error(chalk.yellow(`     ${i + 1}. ${error.message || error}`));
                                             if (error.details && error.details.trim() !== "") {
                                                 console.error(chalk.yellow(`Details: ${error.details}`));
@@ -369,7 +366,7 @@ async function uploadMap(config: Config) {
                                     
                                     if (value.map && Array.isArray(value.map) && value.map.length > 0) {
                                         console.error(chalk.red(`Map Issues (${value.map.length}):`));
-                                        value.map.forEach((error: any, i: number) => {
+                                        (value.map as any[]).forEach((error: any, i: number) => {
                                             console.error(chalk.red(`     ${i + 1}. ${error.message || error}`));
                                             if (error.details && error.details.trim() !== "") {
                                                 console.error(chalk.red(`Details: ${error.details}`));
@@ -382,7 +379,7 @@ async function uploadMap(config: Config) {
                                     
                                     if (value.tilesets && Array.isArray(value.tilesets) && value.tilesets.length > 0) {
                                         console.error(chalk.blue(` Tileset Issues (${value.tilesets.length}):`));
-                                        value.tilesets.forEach((error: any, i: number) => {
+                                        (value.tilesets as any[]).forEach((error: any, i: number) => {
                                             console.error(chalk.blue(`     ${i + 1}. ${error.message || error}`));
                                             if (error.details && error.details.trim() !== "") {
                                                 console.error(chalk.blue(`Details: ${error.details}`));
@@ -395,7 +392,7 @@ async function uploadMap(config: Config) {
                                     
                                     if (value.entities && Array.isArray(value.entities) && value.entities.length > 0) {
                                         console.error(chalk.magenta(`Entity Issues (${value.entities.length}):`));
-                                        value.entities.forEach((error: any, i: number) => {
+                                        (value.entities as any[]).forEach((error: any, i: number) => {
                                             console.error(chalk.magenta(`     ${i + 1}. ${error.message || error}`));
                                             if (error.details && error.details.trim() !== "") {
                                                 console.error(chalk.magenta(`Details: ${error.details}`));
