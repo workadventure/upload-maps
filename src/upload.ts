@@ -29,11 +29,16 @@ async function createZipDirectory(sourceDir: string, outPath: fs.PathLike) {
             .directory(sourceDir, false)
             .on("error", (err) => {
                 const errorMessage = err instanceof Error ? err.message : String(err);
-                console.error(chalk.red(`Failed to create zip file: ${errorMessage}`));
-                console.error(chalk.yellow("What you need to do:"));
-                console.error(chalk.yellow("1. Make sure the 'dist' directory exists and contains your map files"));
-                console.error(chalk.yellow("2. Check that you have write permissions in this folder"));
-                console.error(chalk.yellow("3. Ensure there's enough disk space available"));
+                console.error(chalk.red.bold(`Failed to create zip file: ${errorMessage}\n`));
+                console.error(chalk.magenta(`Source directory: ${sourceDir}`));
+                console.error(chalk.magenta(`Output file: ${outPath}`));
+                
+                
+                if (err instanceof Error && err.stack) {
+                    console.error(chalk.gray("Stack trace:"));
+                    console.error(chalk.gray(err.stack));
+                }
+                
                 reject(err);
             })
             .pipe(stream);
@@ -41,12 +46,18 @@ async function createZipDirectory(sourceDir: string, outPath: fs.PathLike) {
         stream.on("close", () => resolve());
         stream.on("error", (err) => {
             const errorMessage = err instanceof Error ? err.message : String(err);
-            console.error(chalk.red(`Failed to write zip file: ${errorMessage}`));
+            console.error(chalk.red.bold(`Failed to write zip file: ${errorMessage}\n`));
+            console.error(chalk.magenta(`Output file: ${outPath}`));
+            console.error(chalk.yellow("Check write permissions and disk space"));
+            
             reject(err);
         });
+        
         archive.finalize().catch((e) => {
             const errorMessage = e instanceof Error ? e.message : String(e);
-            console.error(chalk.red(`Failed to finalize zip archive: ${errorMessage}`));
+            console.error(chalk.red.bold(`Failed to finalize zip archive: ${errorMessage}\n`));
+            console.error(chalk.magenta(`Source directory: ${sourceDir}`));
+            
             reject(e);
         });
     });
@@ -77,10 +88,7 @@ async function checkMapStorageUrl(mapStorageUrl: string): Promise<boolean> {
                     console.log("------------------------------------\n");
                 } else if (status === 404) {
                     console.log(chalk.red("Server not found: The map storage URL you provided does not exist.\n"));
-                    console.log(chalk.yellow("What you need to do:"));
-                    console.log(chalk.yellow("1. Double-check the URL you entered (look for typos)"));
-                    console.log(chalk.yellow("2. Make sure the URL includes 'https://' at the beginning"));
-                    console.log(chalk.yellow("3. Verify this is the correct server URL from your admin panel"));
+
                     console.log(
                         chalk.italic(
                             `Find your correct server URL in your WorkAdventure admin panel: ${linkForMapStorageInfo}\n`,
@@ -273,20 +281,137 @@ async function uploadMap(config: Config) {
         if (isAxiosError(err)) {
             console.error(chalk.red.bold("An error occurred while uploading the map.\n"));
             if (err.response) {
-                // The server responded with an error status code
                 const status = err.response.status;
-                const data = err.response.data as Record<string, unknown>;
+                const data = err.response.data;
+                
                 if (status === 400) {
                     console.error(
                         chalk.yellow(
-                            "The server rejected the map (Error 400 - Bad Request).\nThis usually means there is a problem with one of your map files (for example, a syntax error in a .tmj or .json file).\n",
+                            "The server rejected the map (Error 400 - Bad Request).\n",
                         ),
                     );
-                    if (data && typeof data === "object" && Object.keys(data).length > 0) {
-                        console.error(chalk.yellow("The server reported issues with the following files:"));
-                        for (const file in data) {
-                            console.error(chalk.magenta(`  - ${file}`));
+                    
+
+        if (data && typeof data === "object") {
+            if (Array.isArray(data.errors)) {
+                console.error(chalk.yellow("The server reported the following issues:\n"));
+
+                data.errors.forEach((error: any, index: number) => {
+                    const type = error.type === "warning" ? "warning" : "error";
+                    const color = type === "error" ? chalk.red : chalk.yellow;
+
+                    const fileInfo = error.file ? `${index + 1}. File: ${chalk.bold(error.file)}` : `${index + 1}.`;
+                    console.error(color(fileInfo));
+
+                    if (error.message) {
+                        console.error(color(`   ${type === "error" ? "Error" : "Warning"}: ${error.message}`));
+                    }
+
+                    if (error.details) {
+                        console.error(color(`   Details: ${error.details}`));
+                    }
+
+                    if (error.link) {
+                        console.error(color(`   More → ${error.link}`));
+                    }
+
+                    console.error("");
+                });
+                        } else if (data.message) {
+                    
+                            console.error(chalk.yellow("Server error details:"));
+                            console.error(chalk.red(data.message + "\n"));
+                        } else if (typeof data === "string") {
+                 
+                            console.error(chalk.yellow("Server error details:"));
+                            console.error(chalk.red(data + "\n"));
+                        } else {
+                    
+                            console.error(chalk.yellow("The server reported issues with the following files:\n"));
+                            Object.keys(data).forEach((key, index) => {
+                                const value = data[key];
+                                console.error(chalk.red(`${index + 1}. File: ${chalk.bold(key)}`));
+                                if (typeof value === "string") {
+                                    console.error(chalk.yellow(`   Error: ${value}\n`));
+                                } else if (value && typeof value === "object") {
+
+                                    const categories = ['map', 'layers', 'tilesets', 'entities'];
+                                    
+                              
+                                    if (value.message) {
+                                        console.error(chalk.red(`   Message: ${value.message}`));
+                                    }
+                                    if (value.line) {
+                                        console.error(chalk.red(`   Line: ${value.line}`));
+                                    }
+                                    if (value.column) {
+                                        console.error(chalk.red(`   Column: ${value.column}`));
+                                    }
+                                    if (value.details) {
+                                        console.error(chalk.red(`   Details: ${value.details}`));
+                                    }
+
+                                    if (value.layers && Array.isArray(value.layers) && value.layers.length > 0) {
+                                        console.error(chalk.yellow(` Layers Issues (${value.layers.length}):`));
+                                        value.layers.forEach((error: any, i: number) => {
+                                            console.error(chalk.yellow(`     ${i + 1}. ${error.message || error}`));
+                                            if (error.details && error.details.trim() !== "") {
+                                                console.error(chalk.yellow(`Details: ${error.details}`));
+                                            }
+                                            if (error.link) {
+                                                console.error(chalk.yellow(`More info: ${error.link}`));
+                                            }
+                                        });
+                                    }
+                                    
+                                    if (value.map && Array.isArray(value.map) && value.map.length > 0) {
+                                        console.error(chalk.red(`Map Issues (${value.map.length}):`));
+                                        value.map.forEach((error: any, i: number) => {
+                                            console.error(chalk.red(`     ${i + 1}. ${error.message || error}`));
+                                            if (error.details && error.details.trim() !== "") {
+                                                console.error(chalk.red(`Details: ${error.details}`));
+                                            }
+                                            if (error.link) {
+                                                console.error(chalk.red(`More info: ${error.link}`));
+                                            }
+                                        });
+                                    }
+                                    
+                                    if (value.tilesets && Array.isArray(value.tilesets) && value.tilesets.length > 0) {
+                                        console.error(chalk.blue(` Tileset Issues (${value.tilesets.length}):`));
+                                        value.tilesets.forEach((error: any, i: number) => {
+                                            console.error(chalk.blue(`     ${i + 1}. ${error.message || error}`));
+                                            if (error.details && error.details.trim() !== "") {
+                                                console.error(chalk.blue(`Details: ${error.details}`));
+                                            }
+                                            if (error.link) {
+                                                console.error(chalk.blue(`More info: ${error.link}`));
+                                            }
+                                        });
+                                    }
+                                    
+                                    if (value.entities && Array.isArray(value.entities) && value.entities.length > 0) {
+                                        console.error(chalk.magenta(`Entity Issues (${value.entities.length}):`));
+                                        value.entities.forEach((error: any, i: number) => {
+                                            console.error(chalk.magenta(`     ${i + 1}. ${error.message || error}`));
+                                            if (error.details && error.details.trim() !== "") {
+                                                console.error(chalk.magenta(`Details: ${error.details}`));
+                                            }
+                                            if (error.link) {
+                                                console.error(chalk.magenta(`More info: ${error.link}`));
+                                            }
+                                        });
+                                    }
+                                } else {
+                                    console.error(chalk.yellow(`Error: ${String(value)}\n`));
+                                }
+                            });
                         }
+                        
+
+                    } else {
+                        console.error(chalk.yellow("No specific error details provided by the server."));
+                        console.error(chalk.yellow("Check your map files for syntax errors, missing references, or invalid properties."));
                     }
                 } else if (status === 401 || status === 403) {
                     console.error(
@@ -294,8 +419,29 @@ async function uploadMap(config: Config) {
                             "Authentication failed. Please check that your API Key is correct and has not expired.",
                         ),
                     );
+                } else if (status === 413) {
+                    console.error(chalk.red("File too large: Your map files exceed the server's size limit.\n"));
+
+                } else if (status === 500) {
+                    console.error(chalk.red("Server error: The map storage server encountered an internal error.\n"));
+                    
+                    // Afficher les détails de l'erreur serveur si disponibles
+                    if (data && typeof data === "object" && data.message) {
+                        console.error(chalk.yellow("\nServer error details:"));
+                        console.error(chalk.red(data.message));
+                    }
                 } else {
                     console.error(chalk.yellow(`The server returned an unexpected error: ${status}`));
+                    
+                    // Afficher les détails pour tout autre code d'erreur
+                    if (data) {
+                        console.error(chalk.yellow("Error details:"));
+                        if (typeof data === "string") {
+                            console.error(chalk.red(data));
+                        } else {
+                            console.error(chalk.red(JSON.stringify(data, null, 2)));
+                        }
+                    }
                 }
             } else if (err.code === "ECONNREFUSED") {
                 console.error(chalk.red("Connection refused: Cannot connect to the map storage server.\n"));
@@ -305,21 +451,24 @@ async function uploadMap(config: Config) {
                 console.error(chalk.yellow("3. Try accessing the URL in your web browser to test connectivity"));
             } else if (err.code === "ENOTFOUND") {
                 console.error(chalk.red("Server not found: The map storage server address cannot be reached.\n"));
-                console.error(chalk.yellow("What you need to do:"));
-                console.error(chalk.yellow("1. Double-check the Map Storage URL for typos"));
-                console.error(chalk.yellow("2. Ensure the URL includes 'https://' at the beginning"));
-                console.error(chalk.yellow("3. Verify this is the correct server address from your admin panel"));
             } else if (err.code === "ETIMEDOUT") {
                 console.error(chalk.red("Upload timeout: The server took too long to respond.\n"));
             } else {
                 console.error(chalk.yellow("An unknown network error occurred. Please try again."));
+                if (err.message) {
+                    console.error(chalk.red(`Network error details: ${err.message}`));
+                }
             }
         } else {
             console.error(chalk.red.bold("An unexpected error occurred:"));
             if (err instanceof Error) {
                 console.error(chalk.yellow(err.message));
+                if (err.stack) {
+                    console.error(chalk.gray("Stack trace:"));
+                    console.error(chalk.gray(err.stack));
+                }
             } else {
-                console.error(err);
+                console.error(chalk.yellow(String(err)));
             }
         }
         process.exit(1);
@@ -327,17 +476,6 @@ async function uploadMap(config: Config) {
     console.log("\n------------------------------------\n");
 }
 
-// Function to create the .env files
-function createEnvsFiles(config: Config) {
-    fs.appendFileSync(".env", `\nMAP_STORAGE_URL=${config.mapStorageUrl}\nUPLOAD_DIRECTORY=${config.directory}\n`);
-    fs.writeFileSync(".env.secret", `MAP_STORAGE_API_KEY=${config.mapStorageApiKey}`);
-    console.log(chalk.green("Env files created successfully.\n"));
-    console.log(
-        chalk.green(
-            "If you need to manually change the credentials, you can now edit the .env and .env.secret files.\n",
-        ),
-    );
-}
 
 interface Config {
     mapStorageUrl: string;
@@ -345,6 +483,123 @@ interface Config {
     directory: string;
     uploadMode: string;
 }
+
+// Function to create the .env files
+function createEnvsFiles(config: Config) {
+    try {
+       
+        try {
+            fs.appendFileSync(".env", `\nMAP_STORAGE_URL=${config.mapStorageUrl}\nUPLOAD_DIRECTORY=${config.directory}\n`);
+        } catch (envError) {
+            const errorMessage = envError instanceof Error ? envError.message : String(envError);
+            console.error(chalk.red.bold(`Failed to create/update .env file: ${errorMessage}\n`));
+            console.error(chalk.magenta(`File: ${process.cwd()}/.env`));
+            console.error(chalk.yellow("Check write permissions for the .env file in your project root"));
+
+            if (envError instanceof Error) {
+                if (errorMessage.includes("EACCES")) {
+                    console.error(chalk.red(`\nSpecific issue: Permission denied for file: ${process.cwd()}/.env`));
+                    console.error(chalk.yellow("Try: chmod 644 .env (on Mac/Linux) or check file properties (on Windows)"));
+                } else if (errorMessage.includes("ENOSPC")) {
+                    console.error(chalk.red("\nSpecific issue: No space left on device."));
+                    console.error(chalk.yellow("Free up disk space in your project directory"));
+                } else if (errorMessage.includes("ENOENT")) {
+                    console.error(chalk.red(`\nSpecific issue: Cannot access directory: ${process.cwd()}`));
+                    console.error(chalk.yellow("Make sure you're in the correct project directory"));
+                } else if (errorMessage.includes("EISDIR")) {
+                    console.error(chalk.red(`\nSpecific issue: .env exists but is a directory, not a file`));
+                    console.error(chalk.yellow("Remove the .env directory and try again"));
+                }
+            }
+            
+    
+            try {
+                if (fs.existsSync(".env")) {
+                    const stats = fs.statSync(".env");
+                    console.error(chalk.cyan(`\nCurrent .env file info:`));
+                    console.error(chalk.cyan(`  Size: ${stats.size} bytes`));
+                    console.error(chalk.cyan(`  Permissions: ${stats.mode.toString(8)}`));
+                    console.error(chalk.cyan(`  Last modified: ${stats.mtime}`));
+                } else {
+                    console.error(chalk.cyan(`\nFile status: .env does not exist (will be created)`));
+                }
+            } catch (statError) {
+                console.error(chalk.gray(`Could not get file info: ${statError}`));
+            }
+            
+            throw envError;
+        }
+        
+
+     
+        try {
+            fs.writeFileSync(".env.secret", `MAP_STORAGE_API_KEY=${config.mapStorageApiKey}`);
+        } catch (secretError) {
+            const errorMessage = secretError instanceof Error ? secretError.message : String(secretError);
+            console.error(chalk.red.bold(`Failed to create .env.secret file: ${errorMessage}\n`));
+            console.error(chalk.magenta(`File: ${process.cwd()}/.env.secret`));
+            console.error(chalk.yellow("Check write permissions for the .env.secret file in your project root"));
+
+            
+            if (secretError instanceof Error) {
+                if (errorMessage.includes("EACCES")) {
+                    console.error(chalk.red(`\nSpecific issue: Permission denied for file: ${process.cwd()}/.env.secret`));
+                    console.error(chalk.yellow("Try: chmod 644 .env.secret (on Mac/Linux) or check file properties (on Windows)"));
+                } else if (errorMessage.includes("ENOSPC")) {
+                    console.error(chalk.red("\nSpecific issue: No space left on device."));
+                    console.error(chalk.yellow("Free up disk space in your project directory"));
+                } else if (errorMessage.includes("ENOENT")) {
+                    console.error(chalk.red(`\nSpecific issue: Cannot access directory: ${process.cwd()}`));
+                    console.error(chalk.yellow("Make sure you're in the correct project directory"));
+                } else if (errorMessage.includes("EISDIR")) {
+                    console.error(chalk.red(`\nSpecific issue: .env.secret exists but is a directory, not a file`));
+                    console.error(chalk.yellow("Remove the .env.secret directory and try again"));
+                }
+            }
+              
+            
+            
+            try {
+                if (fs.existsSync(".env.secret")) {
+                    const stats = fs.statSync(".env.secret");
+                    console.error(chalk.cyan(`\nCurrent .env.secret file info:`));
+                    console.error(chalk.cyan(`  Size: ${stats.size} bytes`));
+                    console.error(chalk.cyan(`  Permissions: ${stats.mode.toString(8)}`));
+                    console.error(chalk.cyan(`  Last modified: ${stats.mtime}`));
+                } else {
+                    console.error(chalk.cyan(`\nFile status: .env.secret does not exist (will be created)`));
+                }
+            } catch (statError) {
+                console.error(chalk.gray(`Could not get file info: ${statError}`));
+            }
+            
+            throw secretError;
+        }
+
+          
+  
+
+        console.log(chalk.green("Environment files created successfully:\n"));
+        console.log(chalk.green(`✓ ${process.cwd()}/.env`));
+        console.log(chalk.green(`✓ ${process.cwd()}/.env.secret`));
+        console.log(
+            chalk.green(
+            "If you need to manually change the credentials, you can now edit the .env and .env.secret files.\n",
+        ),
+    );
+    } catch (error) {
+        // Gestion d'erreur générale
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        console.error(chalk.red.bold(`Failed to create environment files: ${errorMessage}\n`));
+        console.error(chalk.yellow("Check write permissions in your project directory"));
+        throw error;
+    }
+}
+  
+
+
+
+
 
 function isValidUrl(url: string): boolean {
     try {
@@ -441,3 +696,4 @@ main().catch((err) => {
     console.error(err);
     process.exit(1);
 });
+
