@@ -524,7 +524,8 @@ function createEnvsFiles(config: Config) {
                     console.error(chalk.cyan(`\nFile status: .env does not exist (will be created)`));
                 }
             } catch (statError) {
-                console.error(chalk.gray(`Could not get file info: ${statError}`));
+                const statErrorMessage = statError instanceof Error ? statError.message : String(statError);              
+                console.error(chalk.gray(`Could not get file info: ${statErrorMessage}`));
             }
             
             throw envError;
@@ -570,7 +571,8 @@ function createEnvsFiles(config: Config) {
                     console.error(chalk.cyan(`\nFile status: .env.secret does not exist (will be created)`));
                 }
             } catch (statError) {
-                console.error(chalk.gray(`Could not get file info: ${statError}`));
+                const statErrorMessage = statError instanceof Error ? statError.message : String(statError);
+                console.error(chalk.gray(`Could not get file info: ${statErrorMessage}`));
             }
             
             throw secretError;
