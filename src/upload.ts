@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 
 import * as fs from "fs";
 import archiver from "archiver";
