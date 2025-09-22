@@ -246,7 +246,7 @@ async function askQuestions(): Promise<Config> {
     }
     console.log("You entered: " + chalk.green("'" + directory + "'"));
     console.log("\n------------------------------------");
-    return { mapStorageApiKey, directory, mapStorageUrl, uploadMode: "MAP_STORAGE" };
+    return { mapStorageApiKey, verbose: true, directory, mapStorageUrl, uploadMode: "MAP_STORAGE" };
 }
 
 // Upload function with axios
@@ -290,8 +290,7 @@ async function uploadMap(config: Config) {
                         console.error(chalk.yellow("The server rejected the map (Error 400 - Bad Request).\n"));
                         console.error(chalk.yellow("Could not read response details.\n"));
                         if (config.verbose && err.response.data) {
-                            console.error(chalk.yellow("Error returned:"));
-                            console.error(chalk.red(err.response.data));
+                            dumpResponseData(err.response.data);
                         }
                     } else {
                         const data = dataParse.data;
@@ -303,7 +302,8 @@ async function uploadMap(config: Config) {
                             console.error(chalk.red(`${index + 1}. File: ${chalk.bold(fileName)}`));
 
                             for (const [errorType, errors] of Object.entries(errorsByType)) {
-                                console.error(chalk.yellow(` Issues with ${errorType} (${errorsByType.layers.length}):`));
+                                
+                                console.error(chalk.yellow(` Issues with ${errorType}  (${errors.length}):`));
                                 errors.forEach((error, i: number) => {
                                     console.error(chalk.yellow(`     ${i + 1}. ${error.message}`));
                                     if (error.details && error.details.trim() !== "") {
@@ -315,6 +315,9 @@ async function uploadMap(config: Config) {
                                 });
                             }
                         });
+                        if (config.verbose && err.response.data) {
+                            dumpResponseData(err.response.data);
+                        }
 
                     }
                 } else if (status === 401 || status === 403) {
@@ -326,13 +329,12 @@ async function uploadMap(config: Config) {
                 } else if (status === 413) {
                     console.error(chalk.red("File too large: Your map files exceed the server's size limit.\n"));
                     if (config.verbose && err.response.data) {
-                        console.error(chalk.yellow("Error returned:"));
-                        console.error(chalk.red(err.response.data));
+                        dumpResponseData(err.response.data);
                     }
                 } else if (status === 500) {
                     console.error(chalk.red("Server error: The map storage server encountered an internal error.\n"));
                     if (config.verbose && err.response.data) {
-                        console.error(chalk.yellow("Error returned:"));
+                        dumpResponseData(err.response.data);
                         console.error(chalk.red(err.response.data));
                     }
                 } else {
@@ -493,6 +495,15 @@ function createEnvsFiles(config: Config) {
         console.error(chalk.red.bold(`Failed to create environment files: ${errorMessage}\n`));
         console.error(chalk.yellow("Check write permissions in your project directory"));
         throw error;
+    }
+}
+
+function dumpResponseData(data: unknown) {
+    console.error(chalk.yellow("Error returned:"));
+    if (typeof data === "string") {
+        console.error(chalk.red(data));
+    } else {
+        console.error(chalk.red(JSON.stringify(data, null, 2)));
     }
 }
 
