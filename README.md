@@ -40,9 +40,9 @@ It will ask you a few questions:
 
 Alternatively, you can use flags to upload your map, though the secret variables won't be saved in the `.env` or `.env.secret` files. Available flags include:
 
--   `-u`: Map storage URL
--   `-k`: API Key
--   `-d`: Upload directory
+- `-u`: Map storage URL
+- `-k`: API Key
+- `-d`: Upload directory
 
 Example:
 
@@ -57,7 +57,6 @@ After answering these questions, the script will start to upload your maps. You 
 When you run `npm run upload`, the following steps are executed:
 
 1. **Build Phase**:
-
     - Tilesets are optimized and chunked, removing any unused tiles.
     - Scripts in the map are compiled (from TypeScript to JavaScript) and bundled into a single file.
     - The result is written in the `dist` directory.
