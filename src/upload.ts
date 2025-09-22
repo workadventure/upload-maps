@@ -1,11 +1,4 @@
 #!/usr/bin/env node
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/restrict-template-expressions */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/restrict-plus-operands */
 
 import * as fs from "fs";
 import archiver from "archiver";
@@ -15,6 +8,7 @@ import axios, { isAxiosError } from "axios";
 import { Command } from "commander";
 import chalk from "chalk";
 import { execSync } from "child_process";
+import {MapValidationErrors} from "./ValidationError.js";
 
 const program = new Command();
 
@@ -27,7 +21,7 @@ function shouldRunInit(config: Config) {
 }
 
 // Function to create the zip folder
-async function createZipDirectory(sourceDir: string, outPath: fs.PathLike) {
+async function createZipDirectory(sourceDir: string, outPath: string) {
     const archive = archiver("zip", { zlib: { level: 9 } });
     const stream = fs.createWriteStream(outPath);
 
@@ -288,130 +282,40 @@ async function uploadMap(config: Config) {
             console.error(chalk.red.bold("An error occurred while uploading the map.\n"));
             if (err.response) {
                 const status = err.response.status;
-                const data = err.response.data;
 
                 if (status === 400) {
-                    console.error(chalk.yellow("The server rejected the map (Error 400 - Bad Request).\n"));
+                    const dataParse = MapValidationErrors.safeParse(err.response.data);
 
-                    if (data && typeof data === "object") {
-                        if (Array.isArray(data.errors)) {
-                            console.error(chalk.yellow("The server reported the following issues:\n"));
-
-                            data.errors.forEach((error: any, index: number) => {
-                                const type = error.type === "warning" ? "warning" : "error";
-                                const color = type === "error" ? chalk.red : chalk.yellow;
-
-                                const fileInfo = error.file
-                                    ? `${index + 1}. File: ${chalk.bold(error.file)}`
-                                    : `${index + 1}.`;
-                                console.error(color(fileInfo));
-
-                                if (error.message) {
-                                    console.error(
-                                        color(`   ${type === "error" ? "Error" : "Warning"}: ${error.message}`),
-                                    );
-                                }
-
-                                if (error.details) {
-                                    console.error(color(`   Details: ${error.details}`));
-                                }
-
-                                if (error.link) {
-                                    console.error(color(`   More → ${error.link}`));
-                                }
-
-                                console.error("");
-                            });
-                        } else if (data.message) {
-                            console.error(chalk.yellow("Server error details:"));
-                            console.error(chalk.red(data.message + "\n"));
-                        } else if (typeof data === "string") {
-                            console.error(chalk.yellow("Server error details:"));
-                            console.error(chalk.red(data + "\n"));
-                        } else {
-                            console.error(chalk.yellow("The server reported issues with the following files:\n"));
-                            Object.keys(data).forEach((key, index) => {
-                                const value = data[key];
-                                console.error(chalk.red(`${index + 1}. File: ${chalk.bold(key)}`));
-                                if (typeof value === "string") {
-                                    console.error(chalk.yellow(`   Error: ${value}\n`));
-                                } else if (value && typeof value === "object") {
-                                    if (value.message) {
-                                        console.error(chalk.red(`   Message: ${value.message}`));
-                                    }
-                                    if (value.line) {
-                                        console.error(chalk.red(`   Line: ${value.line}`));
-                                    }
-                                    if (value.column) {
-                                        console.error(chalk.red(`   Column: ${value.column}`));
-                                    }
-                                    if (value.details) {
-                                        console.error(chalk.red(`   Details: ${value.details}`));
-                                    }
-
-                                    if (value.layers && Array.isArray(value.layers) && value.layers.length > 0) {
-                                        console.error(chalk.yellow(` Layers Issues (${value.layers.length}):`));
-                                        (value.layers as any[]).forEach((error: any, i: number) => {
-                                            console.error(chalk.yellow(`     ${i + 1}. ${error.message || error}`));
-                                            if (error.details && error.details.trim() !== "") {
-                                                console.error(chalk.yellow(`Details: ${error.details}`));
-                                            }
-                                            if (error.link) {
-                                                console.error(chalk.yellow(`More info: ${error.link}`));
-                                            }
-                                        });
-                                    }
-
-                                    if (value.map && Array.isArray(value.map) && value.map.length > 0) {
-                                        console.error(chalk.red(`Map Issues (${value.map.length}):`));
-                                        (value.map as any[]).forEach((error: any, i: number) => {
-                                            console.error(chalk.red(`     ${i + 1}. ${error.message || error}`));
-                                            if (error.details && error.details.trim() !== "") {
-                                                console.error(chalk.red(`Details: ${error.details}`));
-                                            }
-                                            if (error.link) {
-                                                console.error(chalk.red(`More info: ${error.link}`));
-                                            }
-                                        });
-                                    }
-
-                                    if (value.tilesets && Array.isArray(value.tilesets) && value.tilesets.length > 0) {
-                                        console.error(chalk.blue(` Tileset Issues (${value.tilesets.length}):`));
-                                        (value.tilesets as any[]).forEach((error: any, i: number) => {
-                                            console.error(chalk.blue(`     ${i + 1}. ${error.message || error}`));
-                                            if (error.details && error.details.trim() !== "") {
-                                                console.error(chalk.blue(`Details: ${error.details}`));
-                                            }
-                                            if (error.link) {
-                                                console.error(chalk.blue(`More info: ${error.link}`));
-                                            }
-                                        });
-                                    }
-
-                                    if (value.entities && Array.isArray(value.entities) && value.entities.length > 0) {
-                                        console.error(chalk.magenta(`Entity Issues (${value.entities.length}):`));
-                                        (value.entities as any[]).forEach((error: any, i: number) => {
-                                            console.error(chalk.magenta(`     ${i + 1}. ${error.message || error}`));
-                                            if (error.details && error.details.trim() !== "") {
-                                                console.error(chalk.magenta(`Details: ${error.details}`));
-                                            }
-                                            if (error.link) {
-                                                console.error(chalk.magenta(`More info: ${error.link}`));
-                                            }
-                                        });
-                                    }
-                                } else {
-                                    console.error(chalk.yellow(`Error: ${String(value)}\n`));
-                                }
-                            });
+                    if (!dataParse.success) {
+                        console.error(chalk.yellow("The server rejected the map (Error 400 - Bad Request).\n"));
+                        console.error(chalk.yellow("Could not read response details.\n"));
+                        if (config.verbose && err.response.data) {
+                            console.error(chalk.yellow("Error returned:"));
+                            console.error(chalk.red(err.response.data));
                         }
                     } else {
-                        console.error(chalk.yellow("No specific error details provided by the server."));
-                        console.error(
-                            chalk.yellow(
-                                "Check your map files for syntax errors, missing references, or invalid properties.",
-                            ),
-                        );
+                        const data = dataParse.data;
+
+                        console.error(chalk.yellow("The server rejected the map (Error 400 - Bad Request).\n"));
+
+                        console.error(chalk.yellow("The server reported issues with the following files:\n"));
+                        Object.entries(data).forEach(([fileName, errorsByType], index) => {
+                            console.error(chalk.red(`${index + 1}. File: ${chalk.bold(fileName)}`));
+
+                            for (const [errorType, errors] of Object.entries(errorsByType)) {
+                                console.error(chalk.yellow(` Issues with ${errorType} (${errorsByType.layers.length}):`));
+                                errors.forEach((error, i: number) => {
+                                    console.error(chalk.yellow(`     ${i + 1}. ${error.message}`));
+                                    if (error.details && error.details.trim() !== "") {
+                                        console.error(chalk.yellow(`Details: ${error.details}`));
+                                    }
+                                    if (error.link) {
+                                        console.error(chalk.yellow(`More info: ${error.link}`));
+                                    }
+                                });
+                            }
+                        });
+
                     }
                 } else if (status === 401 || status === 403) {
                     console.error(
@@ -421,25 +325,23 @@ async function uploadMap(config: Config) {
                     );
                 } else if (status === 413) {
                     console.error(chalk.red("File too large: Your map files exceed the server's size limit.\n"));
+                    if (config.verbose && err.response.data) {
+                        console.error(chalk.yellow("Error returned:"));
+                        console.error(chalk.red(err.response.data));
+                    }
                 } else if (status === 500) {
                     console.error(chalk.red("Server error: The map storage server encountered an internal error.\n"));
-
-                    // Afficher les détails de l'erreur serveur si disponibles
-                    if (data && typeof data === "object" && data.message) {
-                        console.error(chalk.yellow("\nServer error details:"));
-                        console.error(chalk.red(data.message));
+                    if (config.verbose && err.response.data) {
+                        console.error(chalk.yellow("Error returned:"));
+                        console.error(chalk.red(err.response.data));
                     }
                 } else {
                     console.error(chalk.yellow(`The server returned an unexpected error: ${status}`));
 
                     // Afficher les détails pour tout autre code d'erreur
-                    if (data) {
+                    if (err.response.data) {
                         console.error(chalk.yellow("Error details:"));
-                        if (typeof data === "string") {
-                            console.error(chalk.red(data));
-                        } else {
-                            console.error(chalk.red(JSON.stringify(data, null, 2)));
-                        }
+                        console.error(chalk.red(err.response.data));
                     }
                 }
             } else if (err.code === "ECONNREFUSED") {
@@ -480,6 +382,7 @@ interface Config {
     mapStorageApiKey: string;
     directory: string;
     uploadMode: string;
+    verbose: boolean;
 }
 
 // Function to create the .env files
@@ -520,12 +423,12 @@ function createEnvsFiles(config: Config) {
                     console.error(chalk.cyan(`\nCurrent .env file info:`));
                     console.error(chalk.cyan(`  Size: ${stats.size} bytes`));
                     console.error(chalk.cyan(`  Permissions: ${stats.mode.toString(8)}`));
-                    console.error(chalk.cyan(`  Last modified: ${stats.mtime}`));
+                    console.error(chalk.cyan(`  Last modified: ${stats.mtime.toString()}`));
                 } else {
                     console.error(chalk.cyan(`\nFile status: .env does not exist (will be created)`));
                 }
             } catch (statError) {
-                console.error(chalk.gray(`Could not get file info: ${statError}`));
+                console.error(chalk.gray(`Could not get file info:`), statError);
             }
 
             throw envError;
@@ -565,12 +468,12 @@ function createEnvsFiles(config: Config) {
                     console.error(chalk.cyan(`\nCurrent .env.secret file info:`));
                     console.error(chalk.cyan(`  Size: ${stats.size} bytes`));
                     console.error(chalk.cyan(`  Permissions: ${stats.mode.toString(8)}`));
-                    console.error(chalk.cyan(`  Last modified: ${stats.mtime}`));
+                    console.error(chalk.cyan(`  Last modified: ${stats.mtime.toString()}`));
                 } else {
                     console.error(chalk.cyan(`\nFile status: .env.secret does not exist (will be created)`));
                 }
             } catch (statError) {
-                console.error(chalk.gray(`Could not get file info: ${statError}`));
+                console.error(chalk.gray(`Could not get file info: `), statError);
             }
 
             throw secretError;
@@ -608,6 +511,7 @@ async function main() {
         .option("-u, --mapStorageUrl <mapStorageUrl>", "URL for the Map storage")
         .option("-k, --mapStorageApiKey <mapStorageApiKey>", "API Key")
         .option("-d, --directory <directory>", "Directory for the Map storage")
+        .option("-v, --verbose", "Verbose output")
         .parse(process.argv);
 
     const options = program.opts();
@@ -620,6 +524,7 @@ async function main() {
         uploadMode: (options.uploadMode as string) || process.env.UPLOAD_MODE || "MAP_STORAGE",
         mapStorageUrl: (options.mapStorageUrl as string) || process.env.MAP_STORAGE_URL || "",
         directory: (options.directory as string) || process.env.UPLOAD_DIRECTORY || "",
+        verbose: !!options.verbose || false,
     };
 
     let shouldWriteEnvFile = false;
