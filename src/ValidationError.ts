@@ -1,4 +1,4 @@
-import {z} from "zod";
+import { z } from "zod";
 
 export const ErrorType = z.enum(["error", "warning", "info"]);
 export type ErrorType = z.infer<typeof ErrorType>;

@@ -8,7 +8,7 @@ import axios, { isAxiosError } from "axios";
 import { Command } from "commander";
 import chalk from "chalk";
 import { execSync } from "child_process";
-import {MapValidationErrors} from "./ValidationError.js";
+import { MapValidationErrors } from "./ValidationError.js";
 
 const program = new Command();
 
@@ -302,7 +302,6 @@ async function uploadMap(config: Config) {
                             console.error(chalk.red(`${index + 1}. File: ${chalk.bold(fileName)}`));
 
                             for (const [errorType, errors] of Object.entries(errorsByType)) {
-                                
                                 console.error(chalk.yellow(` Issues with ${errorType}  (${errors.length}):`));
                                 errors.forEach((error, i: number) => {
                                     console.error(chalk.yellow(`     ${i + 1}. ${error.message}`));
@@ -318,7 +317,6 @@ async function uploadMap(config: Config) {
                         if (config.verbose && err.response.data) {
                             dumpResponseData(err.response.data);
                         }
-
                     }
                 } else if (status === 401 || status === 403) {
                     console.error(
