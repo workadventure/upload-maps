@@ -158,7 +158,7 @@ function getGitRepoName() {
 }
 
 // Ask input for users
-async function askQuestions(): Promise<Config> {
+async function askQuestions(config: Config): Promise<Config> {
     console.log("------------------------------------");
     console.log(chalk.green("\nLooks like this is your first time uploading a map! Let's configure the Map upload.\n"));
     console.log(
@@ -246,7 +246,7 @@ async function askQuestions(): Promise<Config> {
     }
     console.log("You entered: " + chalk.green("'" + directory + "'"));
     console.log("\n------------------------------------");
-    return { mapStorageApiKey, verbose: true, directory, mapStorageUrl, uploadMode: "MAP_STORAGE" };
+    return { mapStorageApiKey, directory, mapStorageUrl, uploadMode: "MAP_STORAGE", verbose: config.verbose };
 }
 
 // Upload function with axios
@@ -539,7 +539,7 @@ async function main() {
     let shouldWriteEnvFile = false;
     if (shouldRunInit(config)) {
         if (process.stdout.isTTY) {
-            config = await askQuestions();
+            config = await askQuestions(config);
         }
         shouldWriteEnvFile = true;
     }
