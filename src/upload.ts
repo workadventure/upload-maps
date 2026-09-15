@@ -263,9 +263,7 @@ async function resolveUploadUrl(config: Config): Promise<string> {
     const defaultUrl = baseUrl + "upload";
 
     try {
-        const response = await axios.get(baseUrl + "upload-endpoint", {
-            headers: { Authorization: `Bearer ${config.mapStorageApiKey}` },
-        });
+        const response = await axios.get(baseUrl + "upload-endpoint");
         const parsed = z.object({ url: z.string().url() }).safeParse(response.data);
         if (!parsed.success) {
             if (config.verbose) {
