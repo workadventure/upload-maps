@@ -69,6 +69,9 @@ When you run `npm run upload`, the following steps are executed:
 > [!TIP]
 > You can skip the build phase and only upload the current state of your project with the command: `npm run upload-only`
 
+> [!NOTE]
+> **Large maps behind Cloudflare**: the uploader first asks the map storage (`GET /upload-endpoint`) where to send the ZIP file. A map storage configured with `DIRECT_UPLOAD_URL` can point it to a host that is not limited to 100MB request bodies. The world is still identified by the host of `MAP_STORAGE_URL`, so nothing changes in your configuration. Older map storage versions answer 404 and the uploader simply uses `MAP_STORAGE_URL`.
+
 > [!WARNING]
 > The **WorkAdventure** server only stores the _built_ map you upload. It does not store your original files. To update your map, make sure to keep the original files locally. If you need to make changes, update your files and run the upload command again.
 

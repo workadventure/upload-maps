@@ -8,6 +8,7 @@ import axios, { isAxiosError } from "axios";
 import { Command } from "commander";
 import chalk from "chalk";
 import { execSync } from "child_process";
+import { z } from "zod";
 import { MapValidationErrors } from "./ValidationError.js";
 
 const program = new Command();
@@ -249,18 +250,50 @@ async function askQuestions(config: Config): Promise<Config> {
     return { mapStorageApiKey, directory, mapStorageUrl, uploadMode: "MAP_STORAGE", verbose: config.verbose };
 }
 
+/**
+ * Asks the map-storage where to POST the ZIP file.
+ * The map-storage may advertise a direct URL that bypasses a proxy limiting the request body size
+ * (Cloudflare rejects bodies over 100MB). Old map-storage versions answer 404: we then use the configured URL.
+ */
+async function resolveUploadUrl(config: Config): Promise<string> {
+    let baseUrl = config.mapStorageUrl;
+    if (!baseUrl.endsWith("/")) {
+        baseUrl += "/";
+    }
+    const defaultUrl = baseUrl + "upload";
+
+    try {
+        const response = await axios.get(baseUrl + "upload-endpoint", {
+            headers: { Authorization: `Bearer ${config.mapStorageApiKey}` },
+        });
+        const parsed = z.object({ url: z.string().url() }).safeParse(response.data);
+        if (!parsed.success) {
+            if (config.verbose) {
+                console.warn(chalk.yellow("Unexpected response from /upload-endpoint, using the configured URL."));
+            }
+            return defaultUrl;
+        }
+        return parsed.data.url;
+    } catch (err) {
+        if (isAxiosError(err) && err.response?.status === 404) {
+            // Old map-storage version without the /upload-endpoint route
+            return defaultUrl;
+        }
+        throw err;
+    }
+}
+
 // Upload function with axios
 async function uploadMap(config: Config) {
     console.log(chalk.bold("\nYour map is uploading..."));
     console.log("\n------------------------------------\n");
 
-    let url = config.mapStorageUrl;
-    if (!url.endsWith("/")) {
-        url += "/";
-    }
-    url += "upload";
-
     try {
+        const url = await resolveUploadUrl(config);
+        if (config.verbose) {
+            console.log(`Uploading to ${url}`);
+        }
+
         await axios.post(
             url,
             {
@@ -272,6 +305,9 @@ async function uploadMap(config: Config) {
                 headers: {
                     Authorization: `Bearer ${config.mapStorageApiKey}`,
                     "Content-Type": "multipart/form-data",
+                    // The world is identified by the host of the configured map-storage URL, even when the
+                    // ZIP is sent to a direct upload URL on another host.
+                    "X-Map-Storage-Host": new URL(config.mapStorageUrl).host,
                 },
             },
         );
