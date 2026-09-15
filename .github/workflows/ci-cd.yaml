@@ -20,7 +20,8 @@ jobs:
             - name: Setup Node.js
               uses: actions/setup-node@v3
               with:
-                  node-version: 20
+                  # npm >= 11.5.1 is required for trusted publishing (OIDC) to the npm registry
+                  node-version: 24
 
             - name: Install dependencies
               run: npm install
@@ -34,9 +35,11 @@ jobs:
             - name: Build JS File
               run: npm run build
 
+            # Publishes to npm with trusted publishing (OIDC, see "id-token: write" above): no NPM_TOKEN needed.
+            # The trusted publisher (this repository + this workflow file) is configured on npmjs.com, in the
+            # package settings of @workadventure/upload-maps.
             - name: Run Semantic Release
               if: github.ref == 'refs/heads/master'
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
               run: npx semantic-release
