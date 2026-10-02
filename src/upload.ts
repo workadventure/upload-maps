@@ -322,9 +322,10 @@ async function uploadMap(config: Config) {
 
                     if (!dataParse.success) {
                         console.error(chalk.yellow("The server rejected the map (Error 400 - Bad Request).\n"));
-                        console.error(chalk.yellow("Could not read response details.\n"));
-                        if (config.verbose && err.response.data) {
+                        if (err.response.data) {
                             dumpResponseData(err.response.data);
+                        } else {
+                            console.error(chalk.yellow("Could not read response details.\n"));
                         }
                     } else {
                         const data = dataParse.data;

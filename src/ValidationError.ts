@@ -13,7 +13,8 @@ export const ValidationError = z.object({
 });
 export type ValidationError = z.infer<typeof ValidationError>;
 
-export const OrganizedErrors = z.record(SectionType, ValidationError.array());
+// The server only sends the sections that have errors (zod 4's z.record with an enum key requires every key)
+export const OrganizedErrors = z.partialRecord(SectionType, ValidationError.array());
 export type OrganizedErrors = z.infer<typeof OrganizedErrors>;
 
 export const MapValidationErrors = z.record(z.string(), OrganizedErrors);
